@@ -20,7 +20,7 @@ void Alg::CalcUDistances(Node *src, const PNodeVector &nodes, bool activeOnly)
 void Alg::CalcUDistances(Node *src, Node * const *nodes, int count,
                          bool activeOnly)
 {
-  for (size_t j = 0; j < count; j++)
+  for (int j = 0; j < count; j++)
     nodes[j]->m_dtag = -1;
 
   if (activeOnly && src->m_dactTime >= 0)
@@ -123,11 +123,11 @@ double Alg::ApproxUAvClss(const PNodeVector &nodes, bool activeOnly,
   int n = 0;
   double sum = 0;
   int step = count > 1000 ? count / 1000 : 1;
-  for (size_t i = 0; i < count; i += step)
+  for (int i = 0; i < count; i += step)
   {
     Node *cur = pNodes[i];
     CalcUDistances(cur, pNodes, count, activeOnly);
-    for (size_t j = 0; j < count; j++)
+    for (int j = 0; j < count; j++)
     {
       Node &nd = *pNodes[j];
       if (nd.m_dtag < 0)
@@ -155,14 +155,14 @@ double Alg::ApproxUDiameter(const PNodeVector &nodes, bool activeOnly,
 
     if (h == 0)
     {
-      for (size_t i = 0; i < count; i++)
+      for (int i = 0; i < count; i++)
         if (pNodes[i]->m_dtag < 0)
           throw Exception("The graph/component is not connected");
     }
 
     Node *nMax;
     double max = -1;    
-    for (size_t i = 0; i < count; i++)
+    for (int i = 0; i < count; i++)
       if (pNodes[i]->m_dtag > max && pNodes[i]->m_tag == 0)
       {
         nMax = pNodes[i];
@@ -185,7 +185,7 @@ void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
 
   double d = 0;
 
-  for (size_t i = 0; i < count; i++)
+  for (int i = 0; i < count; i++)
   {
     Node *n = pNodes[i];
     n->m_btws = n->m_clss = 0;
@@ -197,12 +197,12 @@ void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
     }
   }
 
-  for (size_t i = 0; i < count; i++)
+  for (int i = 0; i < count; i++)
   {
     Node *cur = pNodes[i];
     CalcUDistances(cur, pNodes, count, activeOnly);
 
-    for (size_t j = 0; j < count; j++)
+    for (int j = 0; j < count; j++)
     {
       Node *n2 = pNodes[j];
       if (cur == n2)
@@ -230,7 +230,7 @@ void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
     }
     cur->m_clss /= count;
   }
-  for (size_t i = 0; i < count; i++)
+  for (int i = 0; i < count; i++)
   {
     Node *src = pNodes[i];
     LinkVector &links = src->links();

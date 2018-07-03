@@ -136,7 +136,7 @@ void SFDegreeDistr::initProbs(double x)
     if (sumRem > 1)
     {
       double r = RAND_0_1;
-      for (int j = 0; j < rems.size(); j++)
+      for (int j = 0; j < (int)rems.size(); j++)
         if (rems[j] > r)
         {
           m_pool[poolIx--] = minRem + j;

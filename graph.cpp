@@ -91,8 +91,9 @@ bool Graph::linkNodesByDistribution(IDoubleDistr *distr)
   int maxKIndex = 0;
   int sum = 0;
   double dSum = 0;
+  const int nc = nCount();
   PNodeVector &nv = nodes();
-  for (int i = 0; i < nv.size(); i++)
+  for (int i = 0; i < nc; i++)
   {
     double dtmp = distr->genDouble();
     int tmp = (int)ceil(dtmp);
@@ -137,13 +138,13 @@ class BACdfIndexer : public ICdfIndexer<Node>
   void calcCdfs(Node **nodes)
   {
     int totalK = 0;
-    for (size_t i = 0; i < m_count; i++)
+    for (int i = 0; i < m_count; i++)
     {
       const Node *n = nodes[i];
       totalK += n->numLinks();
       m_cdfs[i] = totalK;
     }
-    for (size_t i = 0; i < m_count; i++)
+    for (int i = 0; i < m_count; i++)
       m_cdfs[i] /= totalK;
   }
 public:
@@ -184,7 +185,7 @@ bool Graph::linkNodesBA(int m)
   {
     Node *c = rsel.sel();
     if (connCount <= m)
-      for (size_t i = 0; i < connCount; i++)
+      for (int i = 0; i < connCount; i++)
         linkSimple(c, connected[i]);
     else
     {
@@ -829,24 +830,25 @@ void Graph::ReadAdjacency(const char *path, bool prune, int n)
 
   if (prune)
   {
-    for (size_t i = 0; i < nCount(); i++)
+    for (int i = 0; i < nCount(); i++)
       (*m_nodes)[i]->m_name = ToString(i);
-    for (size_t i = nCount(); i < n; i++)
+    for (int i = nCount(); i < n; i++)
       addNodeSimple(ToString(i));
     m_nodeMap->clear();
-    for (size_t i = 0; i < nCount(); i++)
+    for (int i = 0; i < nCount(); i++)
       (*m_nodeMap)[(*m_nodes)[i]->m_name] = (*m_nodes)[i];
   }
 }
 
 void Graph::WriteAdjacency(const char *fileName, bool gccOnly)
 {
+  const int nc = nCount();
   PNodeVector &nv = nodes();
   if (gccOnly)
     Alg::AssignUComponentIDs(nv, false);
 
   int offset = 0;
-  for (int i = 0; i < nv.size(); i++)
+  for (int i = 0; i < nc; i++)
   {
     Node &n = *nv[i];
     if (n.numLinks() > 0 && (!gccOnly || n.m_compId == 0))
