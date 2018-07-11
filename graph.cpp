@@ -364,16 +364,6 @@ static double divHalf(double a, double b, IFunc *func)
 }
 
 
-double Graph::calcAvNumLinks() const
-{
-  double sum =
-    std::accumulate(m_nodes->begin(), m_nodes->end(), 0.0,
-                    [](double s, const Node *n1) -> double {
-                      return s + n1->numLinks();
-  });
-  return sum / nCount();
-}
-
 void Graph::getSrcLinks(SrcLinkVector &ret) const
 {
   PNodeVector &nv = nodes();
