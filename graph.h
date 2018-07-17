@@ -88,8 +88,8 @@ public:
   inline PLinkDataVector &linkData() const { return *m_linkData; }
   inline StrPNodeMap &nodeMap() { return *m_nodeMap; }
 
-  inline double avUDegree() const { return 2 * ldCount() / nCount(); }
-  inline double avDDegree() const { return ldCount() / nCount(); }
+  inline double avUDegree() const { return 2.0 * ldCount() / nCount(); }
+  inline double avDDegree() const { return 1.0 * ldCount() / nCount(); }
 
   void getSrcLinks(SrcLinkVector &ret) const;
   void getActSrcLinks(SrcLinkVector &ret) const;

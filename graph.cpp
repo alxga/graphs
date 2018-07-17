@@ -646,8 +646,10 @@ void Graph::URewire()
   for (int i = 0; i < nc; i++)
   {
     Node *n = nv[i];
+    std::string nm = n->m_name;
     int t = n->numLinks();
     n->reinit();
+    n->m_name = nm;
     n->m_tag = t;
     sum += n->m_tag;
   }
