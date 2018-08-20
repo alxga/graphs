@@ -12,7 +12,7 @@
 
 static bool check_tag(Node *n) { return n->m_tag < 2; }
 
-bool Graph::linkNodesByTags(int sumDegrees)
+bool Graph::linkNodesByTags(int sumDegrees, bool strict)
 {
   PNodeVector &nv = nodes();
 
@@ -32,54 +32,69 @@ bool Graph::linkNodesByTags(int sumDegrees)
     int r1, r2;
     Node *n1, *n2;
 
-    do
-    {
-      r1 = (int) (sumDegrees * RAND_0_1);
-      n1 = nodes[r1];
-    }
-    while (n1 == NULL);
+    r1 = (int) (sumDegrees * RAND_0_1);
+    n1 = nodes[r1];
     
-    int attempts = 0;
-    do
+    if (!strict)
     {
       r2 = (int) (sumDegrees * RAND_0_1);
       n2 = nodes[r2];
-      attempts ++;
-      if (attempts > 100)
-      {
-        n2 = NULL;
-        for (int i = 0; i < sumDegrees; i++)
-        {
-          Node *t = nodes[i];
-          if (t != n1 && n1->findLink(t) == NULL)
-          {
-            n2 = t;
-            break;
-          }
-        }
-        break;
-      }
-    }
-    while (n2 == n1 || n1->findLink(n2) != NULL);
-
-    if (n2 == NULL)
-    {
-      ix = 0;
-      Node **tmp = new Node *[sumDegrees];
-      for (int i = 0; i < sumDegrees; i++)
-        if (nodes[i] != n1)
-          tmp[ix++] = nodes[i];
-      delete [] nodes;
-      nodes = tmp;
-      del_nodes.setPtr(tmp);
-      sumDegrees = ix;
-    }
-    else
-    {
-      linkSimple(n1, n2);
+      
+      // remove nodes from the list
       nodes[r1] = nodes[sumDegrees - 1];
       nodes[r2] = nodes[sumDegrees - 2];
       sumDegrees -= 2;
+
+      // link nodes if it is acceptable
+      if (n1 != n2 && n1->findLink(n2) == NULL)
+        linkSimple(n1, n2);
+    }
+    else
+    {
+      int attempts = 0;
+      do // try to find an acceptable node to link to
+      {
+        r2 = (int) (sumDegrees * RAND_0_1);
+        n2 = nodes[r2];
+        attempts ++;
+        if (attempts > 100)
+        {
+          n2 = NULL;
+          for (r2 = 0; r2 < sumDegrees; r2++)
+          {
+            Node *t = nodes[r2];
+            if (t != n1 && n1->findLink(t) == NULL)
+            {
+              n2 = t;
+              break;
+            }
+          }
+          break;
+        }
+      }
+      while (n2 == n1 || n1->findLink(n2) != NULL);
+
+      if (n2 == NULL)
+      {
+        // no acceptable nodes to link to, remove node 1 from the list
+        ix = 0;
+        Node **tmp = new Node *[sumDegrees];
+        for (int i = 0; i < sumDegrees; i++)
+          if (nodes[i] != n1)
+            tmp[ix++] = nodes[i];
+        delete [] nodes;
+        nodes = tmp;
+        del_nodes.setPtr(tmp);
+        sumDegrees = ix;
+      }
+      else
+      {
+        // link nodes and remove them from the list
+        linkSimple(n1, n2);
+        nodes[r1] = nodes[sumDegrees - 1];
+        nodes[r2] = nodes[sumDegrees - 2];
+        sumDegrees -= 2;
+      }
     }
   }
 
@@ -108,7 +123,7 @@ bool Graph::linkNodesByDistribution(IDoubleDistr *distr)
     sum++;
     nv[0]->m_tag++;
   }
-  return linkNodesByTags(sum);
+  return linkNodesByTags(sum, true);
 }
 
 class BACdfIndexer : public ICdfIndexer<Node>
@@ -638,7 +653,7 @@ void Graph::GenerateSpatial(int n, double r, double w, double h)
   linkNodesSpatial(r, w, h);
 }
 
-void Graph::URewire()
+void Graph::URewire(bool strict)
 {
   PNodeVector &nv = nodes();
   const int nc = nCount();
@@ -646,17 +661,54 @@ void Graph::URewire()
   for (int i = 0; i < nc; i++)
   {
     Node *n = nv[i];
-    std::string nm = n->m_name;
-    int t = n->numLinks();
-    n->reinit();
-    n->m_name = nm;
-    n->m_tag = t;
+    n->m_tag = n->numLinks();
+    n->reinitLinks();
     sum += n->m_tag;
   }
   m_linkData->clear();
   m_netFactory->clearLinks();
   
-  linkNodesByTags(sum);
+  linkNodesByTags(sum, strict);
+}
+
+void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename)
+{
+  SrcLinkVector srcLinks;
+  getSrcLinks(srcLinks);
+
+  m_linkData->clear();
+  delete m_nodeMap;
+  m_nodeMap = new StrPNodeMap();
+  
+  const int nc = nCount();
+  PNodeVector *oNodes = m_nodes;
+  auto_del<PNodeVector> del_oNodes(oNodes, false);
+  for (int i = 0; i < nc; i++)
+  {
+    Node *n = (*oNodes)[i];
+    n->m_tag = chk(n);
+  }
+  m_nodes = new PNodeVector();
+
+  for (int i = 0; i < nc; i++)
+  {
+    Node *n = (*oNodes)[i];
+    if (n->m_tag > 0)
+    {
+      n->reinitLinks();
+      if (rename)
+        n->m_name = ToString(m_nodes->size());
+      m_nodes->push_back(n);
+      (*m_nodeMap)[n->m_name] = n;
+    }
+  }
+  for (size_t i = 0; i < srcLinks.size(); i++)
+  {
+    Node *src = srcLinks[i].src;
+    Node *dst = srcLinks[i].link.n;
+    if (src->m_tag && dst->m_tag)
+      src->link(dst, srcLinks[i].link.d);
+  }
 }
 
 void Graph::ReadCsv(const char *nPath, const char *lPath)

@@ -17,6 +17,7 @@
 class INetFactory
 {
 public:
+  virtual INetFactory *newINetFactory() = 0;
   virtual ~INetFactory() {}
   virtual Node *nextNode() = 0;
   virtual LinkData *nextLink() = 0;
@@ -37,6 +38,11 @@ template<typename NType, typename LType>
 
     virtual ~NetFactory()
     {
+    }
+
+    virtual INetFactory *newINetFactory()
+    {
+      return new NetFactory<NType, LType>();
     }
 
     virtual Node *nextNode()
@@ -62,9 +68,6 @@ template<typename NType, typename LType>
     {
       m_linkMMgr.clear();
     }
-
-    inline size_t countNodes() const { return m_nodeMMgr.count(); }
-    inline size_t countLinks() const { return m_linkMMgr.count(); }
   };
 
 #endif // NETFACTORY_HEADER_FILE_INCLUDED

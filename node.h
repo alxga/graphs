@@ -37,6 +37,13 @@ private:
   LinkVector m_links;
   LinkVector m_inLinks;
 
+  void initLinks()
+  {
+    m_links.clear();
+    m_linksMap = NULL;
+    m_inLinks.clear();
+  }
+
   void init()
   {
     m_name = "";
@@ -47,9 +54,7 @@ private:
     m_annd = m_btws = m_clss = m_clCoef = 0;
     m_dactTime = -1;
 
-    m_links.clear();
-    m_linksMap = NULL;
-    m_inLinks.clear();
+    initLinks();
   }
 
 public:
@@ -89,7 +94,13 @@ public:
     init();
   }
 
-  inline void link(Node *n, LinkData *d)
+  virtual void reinitLinks()
+  {
+    delete m_linksMap;
+    initLinks();
+  }
+
+  void link(Node *n, LinkData *d)
   {
     Link l = { n, d };
     if (m_links.size() == 300)

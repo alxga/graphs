@@ -30,7 +30,7 @@ protected:
 
   void linkByDistance(double r, Node *nd, PNodeList &lst, bool sameBin);
   
-  bool linkNodesByTags(int sumDegrees);
+  bool linkNodesByTags(int sumDegrees, bool strict);
   bool linkNodesByDistribution(IDoubleDistr *distr);
   bool linkNodesBA(int k);
   void linkNodesRLat(int a, int b);
@@ -110,8 +110,15 @@ public:
   void GenerateSFStrictly(int n, double k, double g);
   void GenerateRLat(int n);
   void GenerateSpatial(int n, double r, double w = 1, double h = 1);
+  
+  /*
+   if strict is true, we find an acceptable pair of nodes to link,
+   otherwise the 2 randomly selected nodes are discarded even when they
+   cannot be linked
+  */
+  void URewire(bool strict);
 
-  void URewire();
+  void ClearNodesByPredicate(bool (*chk)(Node *), bool rename);
 
   virtual void ReadCsv(const char *nPath, const char *lPath);
   virtual void WriteNodesCsv(const char *path, NodeWriter *writer = 0);

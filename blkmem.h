@@ -48,7 +48,6 @@ template<typename T>
 
     virtual ~BlockMemMgr()
     {
-      App::app()->log("Destructor for BlockMemMgr, count = %d\n", m_count);
       for (size_t i = 0; i < m_blocks.size(); i++)
         delete [] m_blocks[i];
     }
