@@ -671,7 +671,8 @@ void Graph::URewire(bool strict)
   linkNodesByTags(sum, strict);
 }
 
-void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename)
+void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
+                                  PNodeVector *removed)
 {
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
@@ -701,13 +702,42 @@ void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename)
       m_nodes->push_back(n);
       (*m_nodeMap)[n->m_name] = n;
     }
+    else if (removed != NULL)
+      removed->push_back(n);
   }
   for (size_t i = 0; i < srcLinks.size(); i++)
   {
     Node *src = srcLinks[i].src;
     Node *dst = srcLinks[i].link.n;
+    LinkData *ld = srcLinks[i].link.d;
     if (src->m_tag && dst->m_tag)
-      src->link(dst, srcLinks[i].link.d);
+    {
+      if (ld->m_directed || src < dst)
+        m_linkData->push_back(ld);
+      src->link(dst, ld);
+    }
+  }
+}
+
+
+static int sg_sfDegreeCutoff = 0;
+static bool sg_isSfDegreeBelowCutoff(Node *nd)
+{
+  return nd->numLinks() < sg_sfDegreeCutoff;
+}
+
+void Graph::ImposeDegreeCutoff(int cutoff)
+{
+  PNodeVector removed;
+  sg_sfDegreeCutoff = cutoff;
+  ClearNodesByPredicate(sg_isSfDegreeBelowCutoff, true, &removed);
+  for (size_t i = 0; i < removed.size(); i++)
+  {
+    Node *n = removed[i];
+    n->reinitLinks();
+    n->m_name = ToString(m_nodes->size());
+    m_nodes->push_back(n);
+    (*m_nodeMap)[n->m_name] = n;
   }
 }
 

@@ -118,7 +118,9 @@ public:
   */
   void URewire(bool strict);
 
-  void ClearNodesByPredicate(bool (*chk)(Node *), bool rename);
+  void ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
+                             PNodeVector *removed = NULL);
+  void ImposeDegreeCutoff(int cutoff);
 
   virtual void ReadCsv(const char *nPath, const char *lPath);
   virtual void WriteNodesCsv(const char *path, NodeWriter *writer = 0);
