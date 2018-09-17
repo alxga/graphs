@@ -62,25 +62,39 @@ int Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
                            bool activeOnly)
 {
   int ret = 0;
+  const size_t C = nodes.size();
 
   Alg::CalcDistances(src, nodes, activeOnly, true);
-  for (size_t i = 0; i < nodes.size(); i++)
-  {
-    Node &n = *nodes[i];
-    n.m_pathTol = (n.m_dtag < 0) ? -1 : n.m_dtag;
-  }
-  if (dst->m_dtag < 0) // no path from src to dst
-    return 0;
 
+  if (dst->m_dtag < 0) // no path from src to dst
+  {
+    for (size_t i = 0; i < C; i++)
+      nodes[i]->m_pathTol = -1;
+    return 0;
+  }
+
+  // if there's a path its length is dst->m_dtag
   double len = dst->m_dtag;
 
-  Alg::CalcDistances(dst, nodes, activeOnly, false);
-  for (size_t i = 0; i < nodes.size(); i++)
+  for (size_t i = 0; i < C; i++)
   {
     Node &n = *nodes[i];
-    n.m_pathTol = (n.m_dtag < 0) ? -1 : (n.m_dtag + n.m_pathTol);
-    if (n.m_pathTol == len)
-      ret ++;
+    n.m_pathTol = n.m_dtag;
+  }
+
+  Alg::CalcDistances(dst, nodes, activeOnly, false);
+
+  for (size_t i = 0; i < C; i++)
+  {
+    Node &n = *nodes[i];
+    if (n.m_pathTol < 0 || n.m_dtag < 0) // no path from src or no path to dst
+      n.m_pathTol = -1;
+    else
+    {
+      n.m_pathTol = n.m_dtag + n.m_pathTol;
+      if (n.m_pathTol == len)
+        ret ++;
+    }
   }
 
   return ret;
