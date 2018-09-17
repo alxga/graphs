@@ -12,13 +12,14 @@
 const double EPS0 = 1e-8;
 
 
-void Alg::CalcUDistances(Node *src, const PNodeVector &nodes, bool activeOnly)
+void Alg::CalcDistances(Node *src, const PNodeVector &nodes, bool activeOnly,
+                         bool forward)
 {
-  Alg::CalcUDistances(src, &nodes[0], (int)nodes.size(), activeOnly);
+  Alg::CalcDistances(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
 }
 
-void Alg::CalcUDistances(Node *src, Node * const *nodes, int count,
-                         bool activeOnly)
+void Alg::CalcDistances(Node *src, Node * const *nodes, int count,
+                        bool activeOnly, bool forward)
 {
   for (int j = 0; j < count; j++)
     nodes[j]->m_dtag = -1;
@@ -40,7 +41,7 @@ void Alg::CalcUDistances(Node *src, Node * const *nodes, int count,
     queue.pop_front();
     double curd = n->m_dtag;
 
-    LinkVector &links = n->links();
+    LinkVector &links = forward ? n->links() : n->inLinks();
     for (size_t j = 0; j < links.size(); j++)
     {
       LinkData *l = links[j].d;
@@ -57,45 +58,29 @@ void Alg::CalcUDistances(Node *src, Node * const *nodes, int count,
 }
 
 
-int Alg::CalcNodesOnUPath(Node *src, Node *dst, const PNodeVector &nodes,
-                          bool activeOnly)
+int Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
+                           bool activeOnly)
 {
-  for (size_t i = 0; i < nodes.size(); i++)
-    nodes[i]->m_tag = 0;
-
   int ret = 0;
 
-  Alg::CalcUDistances(src, nodes, activeOnly);
+  Alg::CalcDistances(src, nodes, activeOnly, true);
+  for (size_t i = 0; i < nodes.size(); i++)
+  {
+    Node &n = *nodes[i];
+    n.m_pathTol = (n.m_dtag < 0) ? -1 : n.m_dtag;
+  }
   if (dst->m_dtag < 0) // no path from src to dst
     return 0;
 
-  PNodeList dq;
+  double len = dst->m_dtag;
 
-  dq.push_back(dst);
-  dst->m_tag = 1;
-  ret++;
-
-  while (!dq.empty())
+  Alg::CalcDistances(dst, nodes, activeOnly, false);
+  for (size_t i = 0; i < nodes.size(); i++)
   {
-    Node *t = dq.front();
-    dq.pop_front();
-
-    // we assume link lengths above zero
-    const LinkVector &iLinks = t->inLinks();
-    for (size_t i = 0; i < iLinks.size(); i++)
-    {
-      Node *f = iLinks[i].n;
-      LinkData *ld = iLinks[i].d;
-      // check that there is a path, node hasn't been visited yet, and
-      // path length from the node is short enough
-      if (f->m_dtag >= 0 && f->m_tag == 0 &&
-          std::abs(f->m_dtag + ld->m_length - t->m_dtag) < EPS0)
-      {
-        dq.push_back(f);
-        f->m_tag = 1;
-        ret++;
-      }
-    }
+    Node &n = *nodes[i];
+    n.m_pathTol = (n.m_dtag < 0) ? -1 : (n.m_dtag + n.m_pathTol);
+    if (n.m_pathTol == len)
+      ret ++;
   }
 
   return ret;
@@ -126,7 +111,7 @@ double Alg::ApproxUAvClss(const PNodeVector &nodes, bool activeOnly,
   for (int i = 0; i < count; i += step)
   {
     Node *cur = pNodes[i];
-    CalcUDistances(cur, pNodes, count, activeOnly);
+    CalcDistances(cur, pNodes, count, activeOnly, true);
     for (int j = 0; j < count; j++)
     {
       Node &nd = *pNodes[j];
@@ -151,7 +136,7 @@ double Alg::ApproxUDiameter(const PNodeVector &nodes, bool activeOnly,
   size_t hopsCount = 20;
   for (size_t h = 0; h < hopsCount; h++)
   {
-    CalcUDistances(cur, pNodes, count, activeOnly);
+    CalcDistances(cur, pNodes, count, activeOnly, true);
 
     if (h == 0)
     {
@@ -200,7 +185,7 @@ void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
   for (int i = 0; i < count; i++)
   {
     Node *cur = pNodes[i];
-    CalcUDistances(cur, pNodes, count, activeOnly);
+    CalcDistances(cur, pNodes, count, activeOnly, true);
 
     for (int j = 0; j < count; j++)
     {

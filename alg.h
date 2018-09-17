@@ -15,18 +15,20 @@ class LIBGRAPHS_API Alg
 public:
   // uses m_ntag to store an immediate incoming link node on a shortest path,
   // and m_dtag to store the distance from src to the node
-  static void CalcUDistances(Node *src, const PNodeVector &nodes,
-                             bool activeOnly);
+  // follows a node's incoming links if forward is false
+  static void CalcDistances(Node *src, const PNodeVector &nodes,
+                             bool activeOnly, bool forward);
   // uses m_ntag to store an immediate incoming link node on the shortest path,
   // and m_dtag to store the distance from src to the node
-  static void CalcUDistances(Node *src, Node * const *nodes, int count,
-                             bool activeOnly);
+  // follows a node's incoming links if forward is false
+  static void CalcDistances(Node *src, Node * const *nodes, int count,
+                             bool activeOnly, bool forward);
 
-  // stores results as m_tag, 1 if the node is on a shortest path,
+  // updates m_pathTol, -1 implies that a node is not on the path,
   // termini are considered a part of the path
   // link lengths must be positive or an infinite loop may ensue
-  static int CalcNodesOnUPath(Node *src, Node *dst, const PNodeVector &nodes,
-                              bool activeOnly);
+  static int CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
+                               bool activeOnly);
 
   // if graph/component is not (optionally, actively) connected,
   // an exception will be thrown

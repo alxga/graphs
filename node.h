@@ -53,6 +53,7 @@ private:
     m_compSize = 0;
     m_annd = m_btws = m_clss = m_clCoef = 0;
     m_dactTime = -1;
+    m_pathTol = 0;
 
     initLinks();
   }
@@ -70,6 +71,7 @@ public:
 
   int m_timesInGC;
   int m_timesOnPath;
+  double m_pathTol;
 
   double m_annd;
   double m_btws;
