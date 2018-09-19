@@ -49,7 +49,6 @@ private:
     m_name = "";
     m_compId = -1;
     m_timesInGC = 0;
-    m_timesOnPath = 0;
     m_compSize = 0;
     m_annd = m_btws = m_clss = m_clCoef = 0;
     m_dactTime = -1;
@@ -70,7 +69,6 @@ public:
   int m_numActLinks;
 
   int m_timesInGC;
-  int m_timesOnPath;
   double m_pathTol;
 
   double m_annd;
