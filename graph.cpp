@@ -760,6 +760,8 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   while (std::getline(nifs, str))
   {
     Trim(str);
+    if (str.empty()) continue; // skip empty lines
+
     StringVector strs;
     SplitStr(str, strs, ",");
     parseNode(strs, nparser);
@@ -779,6 +781,8 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   while (std::getline(lifs, str))
   {
     Trim(str);
+    if (str.empty()) continue; // skip empty lines
+
     StringVector strs;
     SplitStr(str, strs, ",");
     parseLinkData(strs, lparser);

@@ -27,8 +27,8 @@ public:
   // updates m_pathTol, -1 implies that a node is not on the path,
   // termini are considered a part of the path
   // link lengths must be positive or an infinite loop may ensue
-  static int CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
-                               bool activeOnly);
+  static void CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
+                                bool activeOnly);
 
   // if graph/component is not (optionally, actively) connected,
   // an exception will be thrown

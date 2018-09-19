@@ -58,10 +58,9 @@ void Alg::CalcDistances(Node *src, Node * const *nodes, int count,
 }
 
 
-int Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
-                           bool activeOnly)
+void Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
+                            bool activeOnly)
 {
-  int ret = 0;
   const size_t C = nodes.size();
 
   Alg::CalcDistances(src, nodes, activeOnly, true);
@@ -70,11 +69,8 @@ int Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
   {
     for (size_t i = 0; i < C; i++)
       nodes[i]->m_pathTol = -1;
-    return 0;
+    return;
   }
-
-  // if there's a path its length is dst->m_dtag
-  double len = dst->m_dtag;
 
   for (size_t i = 0; i < C; i++)
   {
@@ -90,14 +86,8 @@ int Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
     if (n.m_pathTol < 0 || n.m_dtag < 0) // no path from src or no path to dst
       n.m_pathTol = -1;
     else
-    {
       n.m_pathTol = n.m_dtag + n.m_pathTol;
-      if (n.m_pathTol == len)
-        ret ++;
-    }
   }
-
-  return ret;
 }
 
 
