@@ -799,13 +799,13 @@ void Graph::WriteNodesCsv(const char *nPath, NodeWriter *writer)
     throw Exception("Unable to open the nodes output file");
 
   nwriter->writeCsvHeader(nifs);
-  nifs << "\n";
+  nifs << CSVENDL;
 
   PNodeVector &nv = nodes();
   for (size_t i = 0; i < nv.size(); i++)
   {
     if (nwriter->writeCsv(nifs, nv[i]))
-      nifs << "\n";
+      nifs << CSVENDL;
   }
 }
 
@@ -819,7 +819,7 @@ void Graph::WriteLinksCsv(const char *lPath, LinkWriter *writer)
     throw Exception("Unable to open the links output file");
 
   lwriter->writeCsvHeader(lifs);
-  lifs << "\n";
+  lifs << CSVENDL;
   
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
@@ -830,7 +830,7 @@ void Graph::WriteLinksCsv(const char *lPath, LinkWriter *writer)
         sl.src->m_name < sl.link.n->m_name)
     {
       if (lwriter->writeCsv(lifs, sl.link.d, sl.src, sl.link.n))
-        lifs << "\n";
+        lifs << CSVENDL;
     }
   }
 }
@@ -847,20 +847,20 @@ void Graph::WriteGdf(const char *gPath,
     throw Exception("Unable to open the graph output file");
 
   nwriter->writeGdfHeader(gfs);
-  gfs << "\n";
+  gfs << CSVENDL;
 
   PNodeVector &nv = nodes();
   for (size_t i = 0; i < nv.size(); i++)
   {
     if (nwriter->writeGdf(gfs, nv[i]))
-      gfs << "\n";
+      gfs << CSVENDL;
   }
 
   LinkWriter *lwriter = lwr ? lwr : newLinkWriter();
   auto_del<LinkWriter> del_lwriter(lwriter, false);
 
   lwriter->writeGdfHeader(gfs);
-  gfs << "\n";
+  gfs << CSVENDL;
   
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
@@ -871,7 +871,7 @@ void Graph::WriteGdf(const char *gPath,
         sl.src->m_name < sl.link.n->m_name)
     {
       if (lwriter->writeGdf(gfs, sl.link.d, sl.src, sl.link.n))
-        gfs << "\n";
+        gfs << CSVENDL;
     }
   }
 }
@@ -958,7 +958,7 @@ void Graph::WriteAdjacency(const char *fileName, bool gccOnly)
             }
           if (!alreadyWritten)
           {
-            fprintf(f, "%d %d\n", n1.m_tag, n2->m_tag);
+            fprintf(f, "%d %d" CSVENDL, n1.m_tag, n2->m_tag);
             saved.push_back(n2);
           }
         }
