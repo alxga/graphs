@@ -112,11 +112,13 @@ public:
   void GenerateSpatial(int n, double r, double w = 1, double h = 1);
   
   /*
-   if strict is true, we find an acceptable pair of nodes to link,
+   If strict is true, we find an acceptable pair of nodes to link,
    otherwise the 2 randomly selected nodes are discarded even when they
-   cannot be linked
+   cannot be linked.
+   Optionally, degrees parameter provides information on the requested node
+   degrees.
   */
-  void URewire(bool strict);
+  void URewire(bool strict, int *degrees = NULL);
 
   void ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
                              PNodeVector *removed = NULL);

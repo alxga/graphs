@@ -653,7 +653,7 @@ void Graph::GenerateSpatial(int n, double r, double w, double h)
   linkNodesSpatial(r, w, h);
 }
 
-void Graph::URewire(bool strict)
+void Graph::URewire(bool strict, int *degrees)
 {
   PNodeVector &nv = nodes();
   const int nc = nCount();
@@ -661,7 +661,7 @@ void Graph::URewire(bool strict)
   for (int i = 0; i < nc; i++)
   {
     Node *n = nv[i];
-    n->m_tag = n->numLinks();
+    n->m_tag = degrees ? degrees[i] : n->numLinks();
     n->reinitLinks();
     sum += n->m_tag;
   }
