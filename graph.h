@@ -40,7 +40,6 @@ protected:
   virtual void linkSimple(Node *n1, Node *n2);
 
   Node **m_nodesByDegree;
-  Node **nodesByDegree();
 
   virtual NodeParser<CsvCol> *newNodeCsvParser()
     { return new NodeParser<CsvCol>(); }
@@ -87,6 +86,8 @@ public:
   inline PNodeVector &nodes() const { return *m_nodes; }
   inline PLinkDataVector &linkData() const { return *m_linkData; }
   inline StrPNodeMap &nodeMap() { return *m_nodeMap; }
+
+  Node **nodesByDegree();
 
   inline double avUDegree() const { return 2.0 * ldCount() / nCount(); }
   inline double avDDegree() const { return 1.0 * ldCount() / nCount(); }

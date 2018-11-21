@@ -509,7 +509,7 @@ Node **Graph::nodesByDegree()
   {
     PNodeVector &nv = nodes();
     m_nodesByDegree = new Node *[nv.size()];
-    memcpy(m_nodesByDegree, &m_nodes[0], nv.size() * sizeof(Node *));
+    memcpy(m_nodesByDegree, &nv[0], nv.size() * sizeof(Node *));
     std::qsort(m_nodesByDegree, nv.size(),
                sizeof(Node *), sg_compNodesByDegree);
   }
