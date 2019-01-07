@@ -31,6 +31,7 @@ typedef std::map<std::string, Node *> StrPNodeMap;
 typedef std::map<std::string, Node *>::iterator StrPNodeMapIt;
 typedef std::map<std::string, Node *>::reverse_iterator StrPNodeMapRIt;
 
+
 class Node
 {
 private:

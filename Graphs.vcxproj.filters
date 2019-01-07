@@ -53,6 +53,24 @@
     <ClInclude Include="sfdistr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="bgraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="bnode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circgraph.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circnode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circnodeparser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circnodewriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -77,6 +95,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="sfdistr.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bgraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="circgraph.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="circnodewriter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

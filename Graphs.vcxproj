@@ -139,7 +139,13 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="alg.h" />
+    <ClInclude Include="bgraph.h" />
     <ClInclude Include="blkmem.h" />
+    <ClInclude Include="bnode.h" />
+    <ClInclude Include="circgraph.h" />
+    <ClInclude Include="circnode.h" />
+    <ClInclude Include="circnodeparser.h" />
+    <ClInclude Include="circnodewriter.h" />
     <ClInclude Include="cols.h" />
     <ClInclude Include="parsers.h" />
     <ClInclude Include="writers.h" />
@@ -154,6 +160,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="alg.cpp" />
+    <ClCompile Include="bgraph.cpp" />
+    <ClCompile Include="circgraph.cpp" />
+    <ClCompile Include="circnodewriter.cpp" />
     <ClCompile Include="cols.cpp" />
     <ClCompile Include="writers.cpp" />
     <ClCompile Include="sfdistr.cpp" />

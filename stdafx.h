@@ -10,6 +10,8 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
 
+#define _USE_MATH_DEFINES
+
 #include <algorithm>
 #include <numeric>
 #include <cstring>
@@ -17,6 +19,7 @@
 #include <time.h>
 #include <fstream>
 #include <iomanip>
+#include <cmath>
 
 #include "Utils/utils.h"
 
