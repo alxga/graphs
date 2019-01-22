@@ -13,11 +13,13 @@
 class CircNode : public Node
 {
 public:
+  double m_radial;
   double m_angle;
   double m_kappa;
 
   CircNode() : Node()
   {
+    m_radial = -1;
     m_angle = 0;
     m_kappa = 0;
   }

@@ -132,7 +132,8 @@ public:
   virtual void WriteGdf(const char *gPath,
                         NodeWriter *nwriter = 0, LinkWriter *lwriter = 0);
 
-  void ReadAdjacency(const char *path, bool prune = false, int n = -1);
+  void ReadAdjacency(const char *path, bool prune = false,
+                     int n = -1, bool containsDuplicates = false);
   void WriteAdjacency(const char *fileName, bool gccOnly);
 
   double NodesForFraction(double f);

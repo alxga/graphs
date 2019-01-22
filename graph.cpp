@@ -877,7 +877,8 @@ void Graph::WriteGdf(const char *gPath,
 }
 
 
-void Graph::ReadAdjacency(const char *path, bool prune, int n)
+void Graph::ReadAdjacency(const char *path, bool prune, int n,
+                          bool containsDuplicates)
 {
   std::ifstream ifs(path, std::ios_base::in | std::ios_base::binary);
   if (!ifs.good())
@@ -903,7 +904,8 @@ void Graph::ReadAdjacency(const char *path, bool prune, int n)
     else
       n2 = (*m_nodeMap)[name2];
 
-    linkSimple(n1, n2);
+    if (!containsDuplicates || !n1->findLink(n2))
+      linkSimple(n1, n2);
   }
 
   if (prune)

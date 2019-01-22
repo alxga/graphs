@@ -18,6 +18,7 @@ void CircNodeWriter::writeCsvHeader(std::ostream &os)
   os << "," << "annd";
   os << "," << "cl_coef";
   os << "," << "kappa";
+  os << "," << "radial";
 }
 
 bool CircNodeWriter::writeCsv(std::ostream &os, const Node *node)
@@ -29,5 +30,6 @@ bool CircNodeWriter::writeCsv(std::ostream &os, const Node *node)
   os << "," << node->m_annd;
   os << "," << node->m_clCoef;
   os << "," << sn->m_kappa;
+  os << "," << sn->m_radial;
   return true;
 }
