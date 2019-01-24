@@ -95,6 +95,7 @@ template<typename ColType>
     int m_btwsIx;
     int m_clssIx;
     int m_lengthIx;
+    int m_observedIx;
     
     bool checkGdfColType(GraphFileCols<ColType> &cols,
                           int ix, GdfCol::DataType dt)
@@ -129,6 +130,7 @@ template<typename ColType>
       m_btwsIx = cols.find("btws");
       m_clssIx = cols.find("clss");
       m_lengthIx = cols.find("length");
+      m_observedIx = cols.find("observed");
     }
 
   public:
@@ -152,6 +154,10 @@ template<typename ColType>
         ld->m_clss = std::stod(strs[m_clssIx]);
       if (m_lengthIx >= 0)
         ld->m_length = std::stod(strs[m_lengthIx]);
+      if (m_lengthIx >= 0)
+        ld->m_length = std::stod(strs[m_lengthIx]);
+      if (m_observedIx >= 0)
+        ld->m_observed = StrToBool(strs[m_observedIx]);
     }
   };
 

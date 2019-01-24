@@ -36,9 +36,6 @@ protected:
   void linkNodesRLat(int a, int b);
   void linkNodesSpatial(double r, double w, double h);
 
-  virtual Node *addNodeSimple(const std::string &name);
-  virtual void linkSimple(Node *n1, Node *n2);
-
   Node **m_nodesByDegree;
 
   virtual NodeParser<CsvCol> *newNodeCsvParser()
@@ -70,6 +67,9 @@ public:
     delete m_netFactory;
     delete [] m_nodesByDegree;
   }
+
+  virtual Node *addNodeSimple(const std::string &name);
+  virtual LinkData *linkSimple(Node *n1, Node *n2);
 
   Node *parseNode(StringVector &strs, NodeParser<CsvCol> *parser);
   LinkData *parseLinkData(StringVector &strs, LinkParser<CsvCol> *parser);

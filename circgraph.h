@@ -22,6 +22,7 @@ protected:
 
   virtual NodeParser<CsvCol> *newNodeCsvParser()
     { return new CircNodeParser<CsvCol>(); }
+  virtual NodeWriter *newNodeWriter() { return new CircNodeWriter(); }
 
 public:
   CircGraph() : Graph(new NetFactory<CircNode, LinkData>())

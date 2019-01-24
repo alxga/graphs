@@ -564,13 +564,14 @@ Node *Graph::addNodeSimple(const std::string &name)
   return n;
 }
 
-void Graph::linkSimple(Node *n1, Node *n2)
+LinkData *Graph::linkSimple(Node *n1, Node *n2)
 {
   LinkData *ld = m_netFactory->nextLink();
   ld->m_directed = false;
   (*m_linkData).push_back(ld);
   n1->link(n2, ld);
   n2->link(n1, ld);
+  return ld;
 }
 
 
