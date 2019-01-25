@@ -46,9 +46,9 @@ public:
   static void CalcUAvNNDegree(const PNodeVector &nodes);
   static void CalcUClustering(const PNodeVector &nodes);
   
-  static void AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly);
-  static void AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly);
-  static void AssignSgComponentIDs(const PNodeVector &nodes);
+  static int AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly);
+  static int AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly);
+  static int AssignSgComponentIDs(const PNodeVector &nodes);
 };
 
 #endif // ALG_HEADER_FILE_INCLUDED

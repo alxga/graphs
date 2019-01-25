@@ -313,7 +313,7 @@ static bool sg_compPNodeListsBySize(const PNodeList *list1,
     } \
   }
 
-void Alg::AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly)
+int Alg::AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly)
 {
   const size_t count = nodes.size();
   for (size_t i = 0; i < count; i++)
@@ -357,6 +357,7 @@ void Alg::AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly)
   }
   
   std::sort(components.begin(), components.end(), sg_compPNodeListsBySize);
+  int ret = components.size() > 0 ? (int)components[0]->size() : -1;
 
   for (size_t i = 0; i < components.size(); i++)
   {
@@ -368,9 +369,11 @@ void Alg::AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly)
     }
     delete lst;
   }
+
+  return ret;
 }
 
-void Alg::AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly)
+int Alg::AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly)
 {
   const size_t count = nodes.size();
   for (size_t i = 0; i < count; i++)
@@ -420,6 +423,7 @@ void Alg::AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly)
   }
 
   std::sort(components.begin(), components.end(), sg_compPNodeListsBySize);
+  int ret = components.size() > 0 ? (int)components[0]->size() : -1;
 
   for (size_t i = 0; i < components.size(); i++)
   {
@@ -431,9 +435,11 @@ void Alg::AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly)
     }
     delete lst;
   }
+
+  return ret;
 }
 
-void Alg::AssignSgComponentIDs(const PNodeVector &nodes)
+int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
 {
   for (size_t i = 0; i < nodes.size(); i++)
     nodes[i]->m_tag = -1;
@@ -495,6 +501,7 @@ void Alg::AssignSgComponentIDs(const PNodeVector &nodes)
        mit != D.end(); mit++)
     components.push_back(mit->second);
   std::sort(components.begin(), components.end(), sg_compPNodeListsBySize);
+  int ret = components.size() > 0 ? (int)components[0]->size() : -1;
 
   for (size_t i = 0; i < components.size(); i++)
   {
@@ -506,4 +513,6 @@ void Alg::AssignSgComponentIDs(const PNodeVector &nodes)
     }
     delete lst;
   }
+
+  return ret;
 }
