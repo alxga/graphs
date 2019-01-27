@@ -34,7 +34,13 @@ public:
     while (d < -M_PI) d += 2 * M_PI;
     while (d > M_PI) d -= 2 * M_PI;
     return d;
-  } 
+  }
+
+  inline double h2Dist(const CircNode &v) const
+  {
+    double dth = angDiff(v);
+    return m_radial + v.m_radial + 2 * std::log(std::sin(dth / 2));
+  }
 };
 
 typedef std::list<CircNode> CircNodeList;
