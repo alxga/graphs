@@ -38,6 +38,12 @@ public:
 
   inline double h2Dist(const CircNode &v) const
   {
+    // As the coordinates for zero degree nodes are not provided,
+    // we return a very high number here so that those nodes are
+    // deprioritized in targeted removals
+    if (m_radial < 0 || v.m_radial < 0)
+      return 1e100;
+
     double dth = angDiff(v);
     return m_radial + v.m_radial + 2 * std::log(std::sin(dth / 2));
   }
