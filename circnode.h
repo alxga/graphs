@@ -53,7 +53,7 @@ public:
     
     double ret;
     ret = (std::cosh(m_radial)*std::cosh(v.m_radial)) -
-          (std::sinh(m_radial)*std::sinh(m_radial) * std::cos(dth));
+          (std::sinh(m_radial)*std::sinh(v.m_radial) * std::cos(dth));
     ret = Utils::acosh(ret);
     return ret;
   }
