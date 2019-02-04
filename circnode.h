@@ -1,10 +1,11 @@
 /*
-  Copyright (c) 2018 Alexander A. Ganin. All rights reserved.
+  Copyright (c) 2018-2019 Alexander A. Ganin. All rights reserved.
   Twitter: @alxga. Website: alexganin.com.
   Licensed under the MIT License.
   See LICENSE file in the project root for full license information.
 */
 
+#include "Utils/math.h"
 #include "Graphs/graph.h"
 
 #ifndef CIRCNODE_HEADER_FILE_INCLUDED
@@ -45,7 +46,16 @@ public:
       return 1e100;
 
     double dth = angDiff(v);
-    return m_radial + v.m_radial + 2 * std::log(std::sin(dth / 2));
+    // if angle is too small inverse cosines fail to yield good precision.
+    // Instead, I use the exact result 
+    if (dth < 1e-7)
+      return std::abs(m_radial - v.m_radial);
+    
+    double ret;
+    ret = (std::cosh(m_radial)*std::cosh(v.m_radial)) -
+          (std::sinh(m_radial)*std::sinh(m_radial) * std::cos(dth));
+    ret = Utils::acosh(ret);
+    return ret;
   }
 };
 
