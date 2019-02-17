@@ -69,7 +69,7 @@ public:
   }
 
   virtual Node *addNodeSimple(const std::string &name);
-  virtual LinkData *linkSimple(Node *n1, Node *n2);
+  virtual LinkData *linkSimple(Node *n1, Node *n2, bool directed);
 
   Node *parseNode(StringVector &strs, NodeParser<CsvCol> *parser);
   LinkData *parseLinkData(StringVector &strs, LinkParser<CsvCol> *parser);
@@ -133,8 +133,9 @@ public:
                         NodeWriter *nwriter = 0, LinkWriter *lwriter = 0);
 
   void ReadAdjacency(const char *path, bool prune = false,
-                     int n = -1, bool containsDuplicates = false);
-  void WriteAdjacency(const char *fileName, bool gccOnly);
+                     int n = -1, bool containsDuplicates = false,
+                     bool directed = false);
+  void WriteAdjacency(const char *fileName, bool gccOnly, bool directed);
 
   double NodesForFraction(double f);
   double LinksForFraction(double f);

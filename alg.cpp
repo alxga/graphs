@@ -443,55 +443,76 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
 {
   for (size_t i = 0; i < nodes.size(); i++)
     nodes[i]->m_tag = -1;
-
+  
+  // Run backward DFS
+  // Node tags: -1: unseen; 0: added to the stack; 1: in-links processed
   PNodeList L;
   PNodeStack S;
   for (size_t i = 0; i < nodes.size(); i++)
   {
     Node &n = *nodes[i];
-    if (n.m_tag >= 0)
+    if (n.m_tag > 0)
       continue;
+
     S.push(&n);
+    n.m_tag = 0;
+
     while (S.size() > 0)
     {
       Node *sn = S.top();
-      if (sn->m_tag >= 0)
+      if (sn->m_tag > 0)
       {
         S.pop();
         L.push_front(sn);
       }
       else
       {
-        const LinkVector &oLinks = sn->links();
-        for (size_t j = 0; j < oLinks.size(); j++)
-          if (oLinks[j].n->m_tag < 0)
-            S.push(oLinks[j].n);
-        sn->m_tag = 0;
+        const LinkVector &iLinks = sn->inLinks();
+        for (size_t j = 0; j < iLinks.size(); j++)
+        {
+          Node *src = iLinks[j].n;
+          if (src->m_tag < 0)
+          {
+            S.push(src);
+            src->m_tag = 0;
+          }
+        }
+        sn->m_tag = 1;
       }
     }
   }
 
+  // Run forward BFS
+  // Node tags: 1: unseen; 2: processed
+  PNodeQueue Q;
   std::map<Node *, PNodeList *> D;
   for (PNodeList::iterator it = L.begin(); it != L.end(); it++)
   {
     Node *n = *it;
-    if (n->m_tag > 0)
+    if (n->m_tag > 1)
       continue;
+
     PNodeList *l = new PNodeList();
     D[n] = l;
-    S.push(n);
-    while (S.size() > 0)
+
+    Q.push(n);
+    n->m_tag = 2;
+    l->push_back(n);
+
+    while (Q.size() > 0)
     {
-      Node *sn = S.top();
-      S.pop();
-      if (sn->m_tag <= 0)
+      Node *sn = Q.front();
+      Q.pop();
+      const LinkVector &links = sn->links();
+      for (size_t j = 0; j < links.size(); j++)
       {
-        const LinkVector &iLinks = sn->inLinks();
-        for (size_t j = 0; j < iLinks.size(); j++)
-          if (iLinks[j].n->m_tag > 0)
-            S.push(iLinks[j].n);
-        sn->m_tag = 1;
-        l->push_back(sn);
+        Node *dst = links[j].n;
+        if (dst->m_tag <= 1)
+        {
+          Q.push(dst);
+          dst->m_tag = 2;
+          l->push_back(dst);
+        }
       }
     }
   }

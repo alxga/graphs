@@ -27,7 +27,7 @@ void CircGraph::linkNodesCircER(double b, double R)
       CircNode *n2 = (CircNode *)ns[j];
       double x = n1->angDiff(*n2) * R;
       if (1 / (1 + pow(x, b)) > RAND_0_1)
-        linkSimple(n1, n2);
+        linkSimple(n1, n2, false);
     }
 }
 
@@ -74,7 +74,7 @@ void CircGraph::linkNodesCircSF(double b, double R, double g)
       CircNode *n2 = (CircNode *)ns[j];
       double x = n1->angDiff(*n2) * R / (n1->m_kappa * n2->m_kappa);
       if (1 / (1 + pow(x, b)) > RAND_0_1)
-        linkSimple(n1, n2);
+        linkSimple(n1, n2, false);
     }
 }
 

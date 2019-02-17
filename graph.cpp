@@ -47,7 +47,7 @@ bool Graph::linkNodesByTags(int sumDegrees, bool strict)
 
       // link nodes if it is acceptable
       if (n1 != n2 && n1->findLink(n2) == NULL)
-        linkSimple(n1, n2);
+        linkSimple(n1, n2, false);
     }
     else
     {
@@ -90,7 +90,7 @@ bool Graph::linkNodesByTags(int sumDegrees, bool strict)
       else
       {
         // link nodes and remove them from the list
-        linkSimple(n1, n2);
+        linkSimple(n1, n2, false);
         nodes[r1] = nodes[sumDegrees - 1];
         nodes[r2] = nodes[sumDegrees - 2];
         sumDegrees -= 2;
@@ -201,7 +201,7 @@ bool Graph::linkNodesBA(int m)
     Node *c = rsel.sel();
     if (connCount <= m)
       for (int i = 0; i < connCount; i++)
-        linkSimple(c, connected[i]);
+        linkSimple(c, connected[i], false);
     else
     {
       int k = m;
@@ -212,7 +212,7 @@ bool Graph::linkNodesBA(int m)
       while (k > 0)
       {
         Node *n = baSel.sel();
-        linkSimple(c, n);
+        linkSimple(c, n, false);
         k --;
       }
     }
@@ -232,12 +232,12 @@ void Graph::linkNodesRLat(int a, int b)
     for (int j = 0; j < b; j++)
     {
       nv[i * b + j]->m_coords.set(i, j);
-      linkSimple(nv[i * b + j], nv[i2 * b + j]);
+      linkSimple(nv[i * b + j], nv[i2 * b + j], false);
     }
   }
   for (int i = 0; i < a; i++)
     for (int j = 0; j < b; j++)
-      linkSimple(nv[i * b + j], nv[i * b + (j + 1) % b]);
+      linkSimple(nv[i * b + j], nv[i * b + (j + 1) % b], false);
 }
 
 void Graph::linkByDistance(double r, Node *nd, PNodeList &bin, bool sameBin)
@@ -247,7 +247,7 @@ void Graph::linkByDistance(double r, Node *nd, PNodeList &bin, bool sameBin)
     Node *oth = *it;
     if (!sameBin || nd->m_tag < oth->m_tag)
       if (nd->m_coords.distance2D((*it)->m_coords) <= r)
-        linkSimple(nd, *it);
+        linkSimple(nd, *it, false);
   }
 }
 
@@ -564,13 +564,14 @@ Node *Graph::addNodeSimple(const std::string &name)
   return n;
 }
 
-LinkData *Graph::linkSimple(Node *n1, Node *n2)
+LinkData *Graph::linkSimple(Node *n1, Node *n2, bool directed)
 {
   LinkData *ld = m_netFactory->nextLink();
-  ld->m_directed = false;
+  ld->m_directed = directed;
   (*m_linkData).push_back(ld);
   n1->link(n2, ld);
-  n2->link(n1, ld);
+  if (!directed)
+    n2->link(n1, ld);
   return ld;
 }
 
@@ -879,7 +880,7 @@ void Graph::WriteGdf(const char *gPath,
 
 
 void Graph::ReadAdjacency(const char *path, bool prune, int n,
-                          bool containsDuplicates)
+                          bool containsDuplicates, bool directed)
 {
   std::ifstream ifs(path, std::ios_base::in | std::ios_base::binary);
   if (!ifs.good())
@@ -906,7 +907,7 @@ void Graph::ReadAdjacency(const char *path, bool prune, int n,
       n2 = (*m_nodeMap)[name2];
 
     if (!containsDuplicates || !n1->findLink(n2))
-      linkSimple(n1, n2);
+      linkSimple(n1, n2, directed);
   }
 
   if (prune)
@@ -921,7 +922,7 @@ void Graph::ReadAdjacency(const char *path, bool prune, int n,
   }
 }
 
-void Graph::WriteAdjacency(const char *fileName, bool gccOnly)
+void Graph::WriteAdjacency(const char *fileName, bool gccOnly, bool directed)
 {
   const int nc = nCount();
   PNodeVector &nv = nodes();
@@ -946,25 +947,11 @@ void Graph::WriteAdjacency(const char *fileName, bool gccOnly)
     if (!gccOnly || n1.m_compId == 0)
     {
       const LinkVector &n1Links = n1.links();
-      PNodeVector saved; // prune duplicate links
       for (size_t j = 0; j < n1Links.size(); j++)
       {
         Node *n2 = n1Links[j].n;
-        if (n1.m_tag < n2->m_tag)
-        {
-          bool alreadyWritten = false;
-          for (size_t k = 0; k < saved.size(); k++)
-            if (saved[k]->m_tag == n2->m_tag)
-            {
-              alreadyWritten = true;
-              break;
-            }
-          if (!alreadyWritten)
-          {
-            fprintf(f, "%d %d" CSVENDL, n1.m_tag, n2->m_tag);
-            saved.push_back(n2);
-          }
-        }
+        if (n1.m_tag < n2->m_tag || directed)
+          fprintf(f, "%d %d" CSVENDL, n1.m_tag, n2->m_tag);
       }
     }
   }
