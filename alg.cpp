@@ -12,51 +12,11 @@
 const double EPS0 = 1e-8;
 
 
-void Alg::CalcDistances(Node *src, const PNodeVector &nodes, bool activeOnly,
-                         bool forward)
+void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
+                      bool forward)
 {
-  Alg::CalcDistances(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
+  Alg::RunDijkstra(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
 }
-
-void Alg::CalcDistances(Node *src, Node * const *nodes, int count,
-                        bool activeOnly, bool forward)
-{
-  for (int j = 0; j < count; j++)
-    nodes[j]->m_dtag = -1;
-
-  if (activeOnly && src->m_dactTime >= 0)
-    return;
-
-  src->m_dtag = 0;
-  src->m_ntag = NULL;
-
-  double max = 0;
-  Node *nMax = src;
-
-  PNodeList queue;
-  queue.push_back(src);
-  while (!queue.empty())
-  {
-    Node *n = queue.front();
-    queue.pop_front();
-    double curd = n->m_dtag;
-
-    LinkVector &links = forward ? n->links() : n->inLinks();
-    for (size_t j = 0; j < links.size(); j++)
-    {
-      LinkData *l = links[j].d;
-      Node *n2 = links[j].n;
-      if ((!activeOnly || (l->m_dactTime < 0 && n2->m_dactTime < 0)) &&
-          (n2->m_dtag < 0 || n2->m_dtag > curd + l->m_length))
-      {
-        n2->m_dtag = curd + l->m_length;
-        n2->m_ntag = n;
-        queue.push_back(n2);
-      }
-    }
-  }
-}
-
 
 struct HeapItem
 {
@@ -68,8 +28,8 @@ struct HeapItem
   }
 };
 
-void Alg::CalcDistancesDijkstra(Node *src, Node * const *nodes, int count,
-                                bool activeOnly, bool forward)
+void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
+                      bool activeOnly, bool forward)
 {
   for (int j = 0; j < count; j++)
     nodes[j]->m_dtag = -1;
@@ -114,7 +74,7 @@ void Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
 {
   const size_t C = nodes.size();
 
-  Alg::CalcDistances(src, nodes, activeOnly, true);
+  Alg::RunDijkstra(src, nodes, activeOnly, true);
 
   if (dst->m_dtag < 0) // no path from src to dst
   {
@@ -129,7 +89,7 @@ void Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
     n.m_pathTol = n.m_dtag;
   }
 
-  Alg::CalcDistances(dst, nodes, activeOnly, false);
+  Alg::RunDijkstra(dst, nodes, activeOnly, false);
 
   for (size_t i = 0; i < C; i++)
   {
@@ -166,7 +126,7 @@ double Alg::ApproxUAvClss(const PNodeVector &nodes, bool activeOnly,
   for (int i = 0; i < count; i += step)
   {
     Node *cur = pNodes[i];
-    CalcDistances(cur, pNodes, count, activeOnly, true);
+    RunDijkstra(cur, pNodes, count, activeOnly, true);
     for (int j = 0; j < count; j++)
     {
       Node &nd = *pNodes[j];
@@ -191,7 +151,7 @@ double Alg::ApproxUDiameter(const PNodeVector &nodes, bool activeOnly,
   size_t hopsCount = 20;
   for (size_t h = 0; h < hopsCount; h++)
   {
-    CalcDistances(cur, pNodes, count, activeOnly, true);
+    RunDijkstra(cur, pNodes, count, activeOnly, true);
 
     if (h == 0)
     {
@@ -240,7 +200,7 @@ void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
   for (int i = 0; i < count; i++)
   {
     Node *cur = pNodes[i];
-    CalcDistances(cur, pNodes, count, activeOnly, true);
+    RunDijkstra(cur, pNodes, count, activeOnly, true);
 
     for (int j = 0; j < count; j++)
     {
@@ -587,4 +547,51 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
   }
 
   return ret;
+}
+
+
+void AlgDeprecated::CalcDistances(Node *src, const PNodeVector &nodes,
+                                  bool activeOnly, bool forward)
+{
+  AlgDeprecated::CalcDistances(src, &nodes[0], (int)nodes.size(), activeOnly,
+                               forward);
+}
+
+void AlgDeprecated::CalcDistances(Node *src, Node * const *nodes, int count,
+                                  bool activeOnly, bool forward)
+{
+  for (int j = 0; j < count; j++)
+    nodes[j]->m_dtag = -1;
+
+  if (activeOnly && src->m_dactTime >= 0)
+    return;
+
+  src->m_dtag = 0;
+  src->m_ntag = NULL;
+
+  double max = 0;
+  Node *nMax = src;
+
+  PNodeList queue;
+  queue.push_back(src);
+  while (!queue.empty())
+  {
+    Node *n = queue.front();
+    queue.pop_front();
+    double curd = n->m_dtag;
+
+    LinkVector &links = forward ? n->links() : n->inLinks();
+    for (size_t j = 0; j < links.size(); j++)
+    {
+      LinkData *l = links[j].d;
+      Node *n2 = links[j].n;
+      if ((!activeOnly || (l->m_dactTime < 0 && n2->m_dactTime < 0)) &&
+          (n2->m_dtag < 0 || n2->m_dtag > curd + l->m_length))
+      {
+        n2->m_dtag = curd + l->m_length;
+        n2->m_ntag = n;
+        queue.push_back(n2);
+      }
+    }
+  }
 }

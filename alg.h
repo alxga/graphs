@@ -13,19 +13,16 @@
 class LIBGRAPHS_API Alg
 {
 public:
-  // uses m_ntag to store an immediate incoming link node on a shortest path,
-  // and m_dtag to store the distance from src to the node
-  // follows a node's incoming links if forward is false
-  static void CalcDistances(Node *src, const PNodeVector &nodes,
-                             bool activeOnly, bool forward);
   // uses m_ntag to store an immediate incoming link node on the shortest path,
   // and m_dtag to store the distance from src to the node
   // follows a node's incoming links if forward is false
-  static void CalcDistances(Node *src, Node * const *nodes, int count,
-                             bool activeOnly, bool forward);
-  // TODO
-  static void CalcDistancesDijkstra(Node *src, Node * const *nodes, int count,
-                                    bool activeOnly, bool forward);
+  static void RunDijkstra(Node *src, const PNodeVector &nodes,
+                          bool activeOnly, bool forward);
+  // uses m_ntag to store an immediate incoming link node on the shortest path,
+  // and m_dtag to store the distance from src to the node
+  // follows a node's incoming links if forward is false
+  static void RunDijkstra(Node *src, Node * const *nodes, int count,
+                          bool activeOnly, bool forward);
 
   // updates m_pathTol, -1 implies that a node is not on the path,
   // termini are considered a part of the path
@@ -52,6 +49,22 @@ public:
   static int AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly);
   static int AssignWkComponentIDs(const PNodeVector &nodes, bool activeOnly);
   static int AssignSgComponentIDs(const PNodeVector &nodes);
+};
+
+class LIBGRAPHS_API AlgDeprecated
+{
+  // the 2 functions below are deprecated and suboptimal
+
+  // uses m_ntag to store an immediate incoming link node on a shortest path,
+  // and m_dtag to store the distance from src to the node
+  // follows a node's incoming links if forward is false
+  static void CalcDistances(Node *src, const PNodeVector &nodes,
+                             bool activeOnly, bool forward);
+  // uses m_ntag to store an immediate incoming link node on the shortest path,
+  // and m_dtag to store the distance from src to the node
+  // follows a node's incoming links if forward is false
+  static void CalcDistances(Node *src, Node * const *nodes, int count,
+                             bool activeOnly, bool forward);
 };
 
 #endif // ALG_HEADER_FILE_INCLUDED
