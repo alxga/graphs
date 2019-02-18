@@ -58,6 +58,57 @@ void Alg::CalcDistances(Node *src, Node * const *nodes, int count,
 }
 
 
+struct HeapItem
+{
+  Node *node;
+  double value;
+  bool operator< (const HeapItem &v) const
+  {
+    return value > v.value;
+  }
+};
+
+void Alg::CalcDistancesDijkstra(Node *src, Node * const *nodes, int count,
+                                bool activeOnly, bool forward)
+{
+  for (int j = 0; j < count; j++)
+    nodes[j]->m_dtag = -1;
+
+  if (activeOnly && src->m_dactTime >= 0)
+    return;
+
+  std::priority_queue<HeapItem> heap;
+
+  src->m_dtag = 0;
+  HeapItem item = { src, 0 };
+  heap.push(item);
+
+  while (heap.size() > 0)
+  {
+    HeapItem top = heap.top();
+    heap.pop();
+    if (top.node->m_dtag < top.value)
+      continue;
+
+    Node *topNode = top.node;
+
+    LinkVector &links = forward ? topNode->links() : topNode->inLinks();
+    for (int i = 0; i < (int)links.size(); i++)
+    {
+      Node *n2 = links[i].n;
+      LinkData *ld = links[i].d;
+      double n2Len = topNode->m_dtag + ld->m_length;
+      if ((!activeOnly || (n2->m_dactTime < 0 && ld->m_dactTime < 0)) &&
+          (n2->m_dtag < 0 || n2Len < n2->m_dtag))
+      {
+        n2->m_dtag = n2Len;
+        HeapItem nItem = { n2, n2Len };
+        heap.push(nItem);
+      }
+    }
+  }
+}
+
 void Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
                             bool activeOnly)
 {

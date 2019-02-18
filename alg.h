@@ -23,6 +23,9 @@ public:
   // follows a node's incoming links if forward is false
   static void CalcDistances(Node *src, Node * const *nodes, int count,
                              bool activeOnly, bool forward);
+  // TODO
+  static void CalcDistancesDijkstra(Node *src, Node * const *nodes, int count,
+                                    bool activeOnly, bool forward);
 
   // updates m_pathTol, -1 implies that a node is not on the path,
   // termini are considered a part of the path
