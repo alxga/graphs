@@ -53,6 +53,7 @@ public:
 
 class LIBGRAPHS_API AlgDeprecated
 {
+public:
   // the 2 functions below are deprecated and suboptimal
 
   // uses m_ntag to store an immediate incoming link node on a shortest path,
