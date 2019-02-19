@@ -12,6 +12,233 @@
 const double EPS0 = 1e-8;
 
 
+void Alg::CalcDistancesBFS(Node *src, const PNodeVector &nodes,
+                           bool activeOnly, bool forward)
+{
+  Alg::CalcDistancesBFS(src, &nodes[0], (int)nodes.size(), activeOnly,
+                        forward);
+}
+
+void Alg::CalcDistancesBFS(Node *src, Node * const *nodes, int count,
+                           bool activeOnly, bool forward)
+{
+  for (int j = 0; j < count; j++)
+    nodes[j]->m_dtag = -1;
+
+  if (activeOnly && src->m_dactTime >= 0)
+    return;
+
+  src->m_dtag = 0;
+  src->m_ntag = NULL;
+
+  double max = 0;
+  Node *nMax = src;
+
+  PNodeList queue;
+  queue.push_back(src);
+  while (!queue.empty())
+  {
+    Node *n = queue.front();
+    queue.pop_front();
+    double curd = n->m_dtag;
+
+    LinkVector &links = forward ? n->links() : n->inLinks();
+    for (size_t j = 0; j < links.size(); j++)
+    {
+      LinkData *l = links[j].d;
+      Node *n2 = links[j].n;
+      if (activeOnly && (l->m_dactTime >= 0 || n2->m_dactTime >= 0))
+        continue;
+      if (n2->m_dtag < 0)
+      {
+        n2->m_dtag = curd + l->m_length;
+        n2->m_ntag = n;
+        queue.push_back(n2);
+      }
+      else if (n2->m_dtag > curd + l->m_length)
+        throw Exception("Unequal link lengths detected in a BFS paths calculation");
+    }
+  }
+}
+
+void Alg::CalcPathToleranceBFS(Node *src, Node *dst,
+                               const PNodeVector &nodes,
+                               bool activeOnly)
+{
+  const size_t C = nodes.size();
+
+  Alg::CalcDistancesBFS(src, nodes, activeOnly, true);
+
+  if (dst->m_dtag < 0) // no path from src to dst
+  {
+    for (size_t i = 0; i < C; i++)
+      nodes[i]->m_pathTol = -1;
+    return;
+  }
+
+  for (size_t i = 0; i < C; i++)
+  {
+    Node &n = *nodes[i];
+    n.m_pathTol = n.m_dtag;
+  }
+
+  Alg::CalcDistancesBFS(dst, nodes, activeOnly, false);
+
+  for (size_t i = 0; i < C; i++)
+  {
+    Node &n = *nodes[i];
+    if (n.m_pathTol < 0 || n.m_dtag < 0) // no path from src or no path to dst
+      n.m_pathTol = -1;
+    else
+      n.m_pathTol = n.m_dtag + n.m_pathTol;
+  }
+}
+
+
+#define INIT_PNODES_COMPID \
+  int count = 0; \
+  size_t fCount = nodes.size(); \
+  Node **pNodes = new Node *[fCount]; \
+  auto_del<Node *> del_pNodes(pNodes, true); \
+  for (size_t i = 0; i < fCount; i++) \
+    if (compId < 0 || compId == nodes[i]->m_compId) \
+    { \
+      pNodes[count++] = nodes[i]; \
+      nodes[i]->m_tag = 0; \
+    }
+
+
+double Alg::ApproxAvClssBFS(const PNodeVector &nodes, bool activeOnly,
+                            int compId)
+{
+  INIT_PNODES_COMPID
+
+  int n = 0;
+  double sum = 0;
+  int step = count > 1000 ? count / 1000 : 1;
+  for (int i = 0; i < count; i += step)
+  {
+    Node *cur = pNodes[i];
+    CalcDistancesBFS(cur, pNodes, count, activeOnly, false);
+    for (int j = 0; j < count; j++)
+    {
+      Node &nd = *pNodes[j];
+      if (nd.m_dtag < 0)
+        throw Exception("The graph/component is not strongly connected");
+      sum += pNodes[j]->m_dtag;
+    }
+    n ++;
+  }
+  
+  return sum / (n * count);
+}
+
+double Alg::ApproxUDiameterBFS(const PNodeVector &nodes, bool activeOnly,
+                               int compId)
+{
+  INIT_PNODES_COMPID
+
+  double D = -1;
+  Node *cur = pNodes[0];
+  cur->m_tag = 1;
+  size_t hopsCount = 20;
+  for (size_t h = 0; h < hopsCount; h++)
+  {
+    CalcDistancesBFS(cur, pNodes, count, activeOnly, true);
+
+    if (h == 0)
+    {
+      for (int i = 0; i < count; i++)
+        if (pNodes[i]->m_dtag < 0)
+          throw Exception("The graph/component is not strongly connected");
+    }
+
+    Node *nMax;
+    double max = -1;    
+    for (int i = 0; i < count; i++)
+      if (pNodes[i]->m_dtag > max && pNodes[i]->m_tag == 0)
+      {
+        nMax = pNodes[i];
+        max = nMax->m_dtag;
+      }
+    if (max > D)
+      D = max;
+    if (max < 0) // graph size is smaller than hopsCount
+      break;
+    nMax->m_tag = 1;
+    cur = nMax;
+  }
+  return D;
+}
+
+void Alg::CalcCentralitiesBFS(const PNodeVector &nodes, bool activeOnly,
+                              double *D, int compId)
+{
+  INIT_PNODES_COMPID
+
+  double d = 0;
+
+  for (int i = 0; i < count; i++)
+  {
+    Node *n = pNodes[i];
+    n->m_btws = n->m_clss = 0;
+    LinkVector &links = n->links();
+    for (size_t j = 0; j < links.size(); j++)
+    {
+      LinkData *l = links[j].d;
+      l->m_btws = l->m_clss = 0;
+    }
+  }
+
+  for (int i = 0; i < count; i++)
+  {
+    Node *cur = pNodes[i];
+    CalcDistancesBFS(cur, pNodes, count, activeOnly, false);
+
+    for (int j = 0; j < count; j++)
+    {
+      Node *n2 = pNodes[j];
+      if (cur == n2)
+        continue;
+      if (n2->m_dtag > d)
+        d = n2->m_dtag;
+      cur->m_clss += n2->m_dtag;
+
+      Node *dst = n2;
+      if (dst->m_dtag >= 0)
+      {
+        Node *src = dst->m_ntag;
+        while (src != NULL)
+        {
+          LinkData *l = src->findLink(dst);
+          l->m_btws++;
+          if (src != cur)
+            src->m_btws++;
+          dst = src;
+          src = dst->m_ntag;
+        }
+      }
+      else
+        throw Exception("The graph/component is not strongly connected");
+    }
+    cur->m_clss /= count;
+  }
+  for (int i = 0; i < count; i++)
+  {
+    Node *src = pNodes[i];
+    LinkVector &links = src->links();
+    for (size_t j = 0; j < links.size(); j++)
+    {
+      LinkData *l = links[j].d;
+      Node *dst = links[j].n;
+      l->m_clss = (src->m_clss + dst->m_clss) / 2;
+    }
+  }
+  if (D != NULL)
+    *D = d;
+}
+
+
 void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
                       bool forward)
 {
@@ -58,8 +285,11 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
       Node *n2 = links[i].n;
       LinkData *ld = links[i].d;
       double n2Len = topNode->m_dtag + ld->m_length;
-      if ((!activeOnly || (n2->m_dactTime < 0 && ld->m_dactTime < 0)) &&
-          (n2->m_dtag < 0 || n2Len < n2->m_dtag))
+
+      if (activeOnly && (ld->m_dactTime >= 0 || n2->m_dactTime >= 0))
+        continue;
+
+      if (n2->m_dtag < 0 || n2Len < n2->m_dtag)
       {
         n2->m_dtag = n2Len;
         HeapItem nItem = { n2, n2Len };
@@ -67,182 +297,6 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
       }
     }
   }
-}
-
-void Alg::CalcPathTolerance(Node *src, Node *dst, const PNodeVector &nodes,
-                            bool activeOnly)
-{
-  const size_t C = nodes.size();
-
-  Alg::RunDijkstra(src, nodes, activeOnly, true);
-
-  if (dst->m_dtag < 0) // no path from src to dst
-  {
-    for (size_t i = 0; i < C; i++)
-      nodes[i]->m_pathTol = -1;
-    return;
-  }
-
-  for (size_t i = 0; i < C; i++)
-  {
-    Node &n = *nodes[i];
-    n.m_pathTol = n.m_dtag;
-  }
-
-  Alg::RunDijkstra(dst, nodes, activeOnly, false);
-
-  for (size_t i = 0; i < C; i++)
-  {
-    Node &n = *nodes[i];
-    if (n.m_pathTol < 0 || n.m_dtag < 0) // no path from src or no path to dst
-      n.m_pathTol = -1;
-    else
-      n.m_pathTol = n.m_dtag + n.m_pathTol;
-  }
-}
-
-
-#define INIT_PNODES_COMPID \
-  int count = 0; \
-  size_t fCount = nodes.size(); \
-  Node **pNodes = new Node *[fCount]; \
-  auto_del<Node *> del_pNodes(pNodes, true); \
-  for (size_t i = 0; i < fCount; i++) \
-    if (compId < 0 || compId == nodes[i]->m_compId) \
-    { \
-      pNodes[count++] = nodes[i]; \
-      nodes[i]->m_tag = 0; \
-    }
-
-
-double Alg::ApproxUAvClss(const PNodeVector &nodes, bool activeOnly,
-                          int compId)
-{
-  INIT_PNODES_COMPID
-
-  int n = 0;
-  double sum = 0;
-  int step = count > 1000 ? count / 1000 : 1;
-  for (int i = 0; i < count; i += step)
-  {
-    Node *cur = pNodes[i];
-    RunDijkstra(cur, pNodes, count, activeOnly, true);
-    for (int j = 0; j < count; j++)
-    {
-      Node &nd = *pNodes[j];
-      if (nd.m_dtag < 0)
-        throw Exception("The graph/component is not connected");
-      sum += pNodes[j]->m_dtag;
-    }
-    n ++;
-  }
-  
-  return sum / (n * count);
-}
-
-double Alg::ApproxUDiameter(const PNodeVector &nodes, bool activeOnly,
-                            int compId)
-{
-  INIT_PNODES_COMPID
-
-  double D = -1;
-  Node *cur = pNodes[0];
-  cur->m_tag = 1;
-  size_t hopsCount = 20;
-  for (size_t h = 0; h < hopsCount; h++)
-  {
-    RunDijkstra(cur, pNodes, count, activeOnly, true);
-
-    if (h == 0)
-    {
-      for (int i = 0; i < count; i++)
-        if (pNodes[i]->m_dtag < 0)
-          throw Exception("The graph/component is not connected");
-    }
-
-    Node *nMax;
-    double max = -1;    
-    for (int i = 0; i < count; i++)
-      if (pNodes[i]->m_dtag > max && pNodes[i]->m_tag == 0)
-      {
-        nMax = pNodes[i];
-        max = nMax->m_dtag;
-      }
-    if (max > D)
-      D = max;
-    if (max < 0) // graph size is smaller than hopsCount
-      break;
-    nMax->m_tag = 1;
-    cur = nMax;
-  }
-  return D;
-}
-
-void Alg::CalcUCentralities(const PNodeVector &nodes, bool activeOnly,
-                            double *D, int compId)
-{
-  INIT_PNODES_COMPID
-
-  double d = 0;
-
-  for (int i = 0; i < count; i++)
-  {
-    Node *n = pNodes[i];
-    n->m_btws = n->m_clss = 0;
-    LinkVector &links = n->links();
-    for (size_t j = 0; j < links.size(); j++)
-    {
-      LinkData *l = links[j].d;
-      l->m_btws = l->m_clss = 0;
-    }
-  }
-
-  for (int i = 0; i < count; i++)
-  {
-    Node *cur = pNodes[i];
-    RunDijkstra(cur, pNodes, count, activeOnly, true);
-
-    for (int j = 0; j < count; j++)
-    {
-      Node *n2 = pNodes[j];
-      if (cur == n2)
-        continue;
-      if (n2->m_dtag > d)
-        d = n2->m_dtag;
-      cur->m_clss += n2->m_dtag;
-
-      Node *dst = n2;
-      if (dst->m_dtag >= 0)
-      {
-        Node *src = dst->m_ntag;
-        while (src != NULL)
-        {
-          LinkData *l = src->findLink(dst);
-          l->m_btws++;
-          if (src != cur)
-            src->m_btws++;
-          dst = src;
-          src = dst->m_ntag;
-        }
-      }
-      else
-        throw Exception("The graph/component is not connected");
-    }
-    cur->m_clss /= count;
-  }
-  for (int i = 0; i < count; i++)
-  {
-    Node *src = pNodes[i];
-    LinkVector &links = src->links();
-    for (size_t j = 0; j < links.size(); j++)
-    {
-      LinkData *l = links[j].d;
-      Node *dst = links[j].n;
-      l->m_clss = (src->m_clss + dst->m_clss) / 2;
-    }
-  }
-  if (D != NULL)
-    *D = d;
 }
 
 
@@ -547,51 +601,4 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
   }
 
   return ret;
-}
-
-
-void AlgDeprecated::CalcDistances(Node *src, const PNodeVector &nodes,
-                                  bool activeOnly, bool forward)
-{
-  AlgDeprecated::CalcDistances(src, &nodes[0], (int)nodes.size(), activeOnly,
-                               forward);
-}
-
-void AlgDeprecated::CalcDistances(Node *src, Node * const *nodes, int count,
-                                  bool activeOnly, bool forward)
-{
-  for (int j = 0; j < count; j++)
-    nodes[j]->m_dtag = -1;
-
-  if (activeOnly && src->m_dactTime >= 0)
-    return;
-
-  src->m_dtag = 0;
-  src->m_ntag = NULL;
-
-  double max = 0;
-  Node *nMax = src;
-
-  PNodeList queue;
-  queue.push_back(src);
-  while (!queue.empty())
-  {
-    Node *n = queue.front();
-    queue.pop_front();
-    double curd = n->m_dtag;
-
-    LinkVector &links = forward ? n->links() : n->inLinks();
-    for (size_t j = 0; j < links.size(); j++)
-    {
-      LinkData *l = links[j].d;
-      Node *n2 = links[j].n;
-      if ((!activeOnly || (l->m_dactTime < 0 && n2->m_dactTime < 0)) &&
-          (n2->m_dtag < 0 || n2->m_dtag > curd + l->m_length))
-      {
-        n2->m_dtag = curd + l->m_length;
-        n2->m_ntag = n;
-        queue.push_back(n2);
-      }
-    }
-  }
 }
