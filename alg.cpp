@@ -22,6 +22,11 @@ void Alg::CalcDistancesBFS(Node *src, const PNodeVector &nodes,
 void Alg::CalcDistancesBFS(Node *src, Node * const *nodes, int count,
                            bool activeOnly, bool forward)
 {
+#if !defined(_DEBUG) && _MSC_VER < 1700
+  // queue implementation appears to be much slower in release mode
+  // than the priority queue implementation as tested in MS VS 2010
+  Alg::RunDijkstra(src, nodes, count, activeOnly, forward);
+#else
   for (int j = 0; j < count; j++)
     nodes[j]->m_dtag = -1;
 
@@ -59,6 +64,7 @@ void Alg::CalcDistancesBFS(Node *src, Node * const *nodes, int count,
         throw Exception("Unequal link lengths detected in a BFS paths calculation");
     }
   }
+#endif
 }
 
 void Alg::CalcPathToleranceBFS(Node *src, Node *dst,
@@ -245,11 +251,11 @@ void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
   Alg::RunDijkstra(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
 }
 
-struct HeapItem
+struct PriorityQueueItem
 {
   Node *node;
   double value;
-  bool operator< (const HeapItem &v) const
+  bool operator< (const PriorityQueueItem &v) const
   {
     return value > v.value;
   }
@@ -264,15 +270,15 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
   if (activeOnly && src->m_dactTime >= 0)
     return;
 
-  std::priority_queue<HeapItem> heap;
+  std::priority_queue<PriorityQueueItem> heap;
 
   src->m_dtag = 0;
-  HeapItem item = { src, 0 };
+  PriorityQueueItem item = { src, 0 };
   heap.push(item);
 
   while (heap.size() > 0)
   {
-    HeapItem top = heap.top();
+    PriorityQueueItem top = heap.top();
     heap.pop();
     if (top.node->m_dtag < top.value)
       continue;
@@ -284,15 +290,15 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
     {
       Node *n2 = links[i].n;
       LinkData *ld = links[i].d;
-      double n2Len = topNode->m_dtag + ld->m_length;
-
       if (activeOnly && (ld->m_dactTime >= 0 || n2->m_dactTime >= 0))
         continue;
+
+      double n2Len = topNode->m_dtag + ld->m_length;
 
       if (n2->m_dtag < 0 || n2Len < n2->m_dtag)
       {
         n2->m_dtag = n2Len;
-        HeapItem nItem = { n2, n2Len };
+        PriorityQueueItem nItem = { n2, n2Len };
         heap.push(nItem);
       }
     }
