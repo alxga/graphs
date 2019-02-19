@@ -22,7 +22,7 @@ void Alg::CalcDistancesBFS(Node *src, const PNodeVector &nodes,
 void Alg::CalcDistancesBFS(Node *src, Node * const *nodes, int count,
                            bool activeOnly, bool forward)
 {
-#if !defined(_DEBUG) && _MSC_VER < 1700
+#if !defined(_DEBUG) && _MSC_VER >= 1600 && _MSC_VER < 1700
   // queue implementation appears to be much slower in release mode
   // than the priority queue implementation as tested in MS VS 2010
   Alg::RunDijkstra(src, nodes, count, activeOnly, forward);
