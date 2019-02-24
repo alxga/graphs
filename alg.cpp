@@ -245,17 +245,11 @@ void Alg::CalcCentralitiesBFS(const PNodeVector &nodes, bool activeOnly,
 }
 
 
-void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
-                      bool forward)
-{
-  Alg::RunDijkstra(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
-}
-
-struct PriorityQueueItem
+struct PQItemDijkstra
 {
   Node *node;
   double value;
-  bool operator< (const PriorityQueueItem &v) const
+  bool operator< (const PQItemDijkstra &v) const
   {
     return value > v.value;
   }
@@ -270,15 +264,15 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
   if (activeOnly && src->m_dactTime >= 0)
     return;
 
-  std::priority_queue<PriorityQueueItem> heap;
+  std::priority_queue<PQItemDijkstra> heap;
 
   src->m_dtag = 0;
-  PriorityQueueItem item = { src, 0 };
+  PQItemDijkstra item = { src, 0 };
   heap.push(item);
 
   while (heap.size() > 0)
   {
-    PriorityQueueItem top = heap.top();
+    PQItemDijkstra top = heap.top();
     heap.pop();
     if (top.node->m_dtag < top.value)
       continue;
@@ -298,11 +292,97 @@ void Alg::RunDijkstra(Node *src, Node * const *nodes, int count,
       if (n2->m_dtag < 0 || n2Len < n2->m_dtag)
       {
         n2->m_dtag = n2Len;
-        PriorityQueueItem nItem = { n2, n2Len };
+        PQItemDijkstra nItem = { n2, n2Len };
         heap.push(nItem);
       }
     }
   }
+}
+
+void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
+                      bool forward)
+{
+  Alg::RunDijkstra(src, &nodes[0], (int)nodes.size(), activeOnly, forward);
+}
+
+
+struct PQItemMST
+{
+  Node *node;
+  LinkData *ld;
+  double value;
+  bool operator< (const PQItemMST &v) const
+  {
+    return value > v.value;
+  }
+};
+
+double Alg::FindUMST(Node * const *nodes, int count, SrcLinkVector &ret)
+{
+  // node tags: -1: unseen; 0: queued; 1: added to the tree
+  ret.clear();
+  double totalCost = 0;
+
+  for (int j = 0; j < count; j++)
+    nodes[j]->m_tag = -1;
+
+  Node *start = nodes[0];
+
+  std::priority_queue<PQItemMST> heap;
+
+  start->m_tag = 0;
+  start->m_dtag = 0;
+  start->m_ntag = NULL;
+  PQItemMST item = { start, NULL, 0 };
+  heap.push(item);
+
+  while (heap.size() > 0)
+  {
+    PQItemMST top = heap.top();
+    heap.pop();
+    if (top.node->m_dtag < top.value)
+      continue;
+
+    Node *topNode = top.node;
+    totalCost += topNode->m_dtag;
+    if (topNode->m_ntag != NULL)
+    {
+      SrcLink srcLink;
+      srcLink.src = topNode->m_ntag;
+      srcLink.link.d = top.ld;
+      srcLink.link.n = topNode;
+      ret.push_back(srcLink);
+    }
+    topNode->m_tag = 1;
+
+    LinkVector &links = topNode->links();
+    for (int i = 0; i < (int)links.size(); i++)
+    {
+      Node *n2 = links[i].n;
+      LinkData *ld = links[i].d;
+
+      // node is not in the tree and it's unseen or the current cost is better
+      if (n2->m_tag < 1 && (n2->m_tag < 0 || ld->m_weight < n2->m_dtag))
+      {
+        n2->m_tag = 0;
+        n2->m_dtag = ld->m_weight;
+        n2->m_ntag = topNode;
+        PQItemMST nItem = { n2, ld, ld->m_weight };
+        heap.push(nItem);
+      }
+    }
+  }
+
+  if ((int)ret.size() != count - 1)
+    throw Exception("MST links number is not equal the number of nodes, "
+                    "less 1; the graph may be disconnected");
+
+  return totalCost;
+}
+
+double Alg::FindUMST(const PNodeVector &nodes, SrcLinkVector &ret)
+{
+  return Alg::FindUMST(&nodes[0], (int)nodes.size(), ret);
 }
 
 

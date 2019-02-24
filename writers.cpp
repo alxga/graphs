@@ -64,6 +64,8 @@ void LinkWriter::writeCsvHeader(std::ostream &os)
   os << "," << "length";
   os << "," << "btws";
   os << "," << "clss";
+  if (m_writeWeights)
+    os << "," << "weight";
 }
 
 bool LinkWriter::writeCsv(std::ostream &os, const LinkData *ld,
@@ -77,6 +79,8 @@ bool LinkWriter::writeCsv(std::ostream &os, const LinkData *ld,
   os << "," << std::setprecision(prec) << ld->m_length;
   os << "," << std::setprecision(prec) << ld->m_btws;
   os << "," << std::setprecision(prec) << ld->m_clss;
+  if (m_writeWeights)
+    os << "," << std::setprecision(prec) << ld->m_weight;
 
   return true;
 }
@@ -91,6 +95,8 @@ void LinkWriter::writeGdfHeader(std::ostream &os)
   os << "," << "length DOUBLE";
   os << "," << "btws DOUBLE";
   os << "," << "clss DOUBLE";
+  if (m_writeWeights)
+    os << "," << "weight DOUBLE";
 }
 
 bool LinkWriter::writeGdf(std::ostream &os, const LinkData *ld,
@@ -104,6 +110,8 @@ bool LinkWriter::writeGdf(std::ostream &os, const LinkData *ld,
   os << "," << std::setprecision(prec) << ld->m_length;
   os << "," << std::setprecision(prec) << ld->m_btws;
   os << "," << std::setprecision(prec) << ld->m_clss;
+  if (m_writeWeights)
+    os << "," << std::setprecision(prec) << ld->m_weight;
 
   return true;
 }

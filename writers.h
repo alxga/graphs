@@ -25,7 +25,12 @@ public:
 
 class LIBGRAPHS_API LinkWriter
 {
+  bool m_writeWeights;
 public:
+  LinkWriter(bool wWeights = false) : m_writeWeights(wWeights)
+  {
+  }
+
   virtual void writeCsvHeader(std::ostream &os);
   virtual bool writeCsv(std::ostream &os, const LinkData *link,
                         const Node *n1, const Node *n2);

@@ -56,6 +56,13 @@ public:
   static void RunDijkstra(Node *src, const PNodeVector &nodes,
                           bool activeOnly, bool forward);
 
+  // finds a minimum spanning tree of an undirected graph with link costs
+  // given by their weights, throws an exception if the graph is not connected
+  // supports negative edge costs
+  static double FindUMST(Node * const *nodes, int count, SrcLinkVector &ret);
+  // wrapper function for the previous one
+  static double FindUMST(const PNodeVector &nodes, SrcLinkVector &ret);
+
   static void CalcUAvNNDegree(const PNodeVector &nodes);
   static void CalcUClustering(const PNodeVector &nodes);
 

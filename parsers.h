@@ -95,7 +95,7 @@ template<typename ColType>
     int m_btwsIx;
     int m_clssIx;
     int m_lengthIx;
-    int m_observedIx;
+    int m_weightIx;
     
     bool checkGdfColType(GraphFileCols<ColType> &cols,
                           int ix, GdfCol::DataType dt)
@@ -112,7 +112,8 @@ template<typename ColType>
       {
         if (!checkGdfColType(cols, m_btwsIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_clssIx, GdfCol::Dbl) ||
-            !checkGdfColType(cols, m_lengthIx, GdfCol::Dbl))
+            !checkGdfColType(cols, m_lengthIx, GdfCol::Dbl) ||
+            !checkGdfColType(cols, m_weightIx, GdfCol::Dbl))
           throw Exception("Incorrect link GDF column type");
       }
     }
@@ -130,7 +131,7 @@ template<typename ColType>
       m_btwsIx = cols.find("btws");
       m_clssIx = cols.find("clss");
       m_lengthIx = cols.find("length");
-      m_observedIx = cols.find("observed");
+      m_weightIx = cols.find("weight");
     }
 
   public:
@@ -154,10 +155,8 @@ template<typename ColType>
         ld->m_clss = std::stod(strs[m_clssIx]);
       if (m_lengthIx >= 0)
         ld->m_length = std::stod(strs[m_lengthIx]);
-      if (m_lengthIx >= 0)
-        ld->m_length = std::stod(strs[m_lengthIx]);
-      if (m_observedIx >= 0)
-        ld->m_observed = StrToBool(strs[m_observedIx]);
+      if (m_weightIx >= 0)
+        ld->m_weight = std::stod(strs[m_weightIx]);
     }
   };
 
