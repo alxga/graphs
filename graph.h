@@ -125,6 +125,9 @@ public:
                              PNodeVector *removed = NULL);
   void ImposeDegreeCutoff(int cutoff);
 
+  int AddTemporalLinks(int cnt);
+  void ClearTemporalLinks();
+
   virtual void ReadCsv(const char *nPath, const char *lPath);
   virtual void WriteNodesCsv(const char *path, NodeWriter *writer = 0);
   virtual void WriteLinksCsv(const char *path, LinkWriter *writer = 0);

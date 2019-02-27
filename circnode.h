@@ -13,6 +13,13 @@
 
 class CircNode : public Node
 {
+  void init()
+  {
+    m_radial = -1;
+    m_angle = 0;
+    m_kappa = 0;
+  }
+
 public:
   double m_radial;
   double m_angle;
@@ -20,9 +27,13 @@ public:
 
   CircNode() : Node()
   {
-    m_radial = -1;
-    m_angle = 0;
-    m_kappa = 0;
+    init();
+  }
+
+  virtual void reinit()
+  {
+    Node::reinit();
+    init();
   }
 
   inline double angDiff(const CircNode &src) const

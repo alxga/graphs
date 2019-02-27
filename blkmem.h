@@ -39,7 +39,7 @@ template<typename T>
     {
       return m_blocks[i / m_blkSize][i % m_blkSize];
     }
-    inline void clear() { m_count = 0; }
+    inline void resize(int count) { m_count = count; }
     inline size_t count() const { return m_count; }
 
     BlockMemMgr(size_t blkSize = 1024) : m_count(0), m_blkSize(blkSize)

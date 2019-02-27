@@ -298,8 +298,6 @@ void Graph::linkNodesSpatial(double r, double w, double h)
 }
 
 
-
-
 class IFunc
 {
 public:
@@ -521,8 +519,8 @@ void Graph::resizeAndResetNodes(size_t n)
   m_nodes->clear();
   m_nodeMap->clear();
   m_linkData->clear();
-  m_netFactory->clearNodes();
-  m_netFactory->clearLinks();
+  m_netFactory->resizeNodes(0);
+  m_netFactory->resizeLinks(0);
   for (size_t i = 0; i < n; i++)
     addNodeSimple(ToString(i));
 
@@ -655,6 +653,7 @@ void Graph::GenerateSpatial(int n, double r, double w, double h)
   linkNodesSpatial(r, w, h);
 }
 
+
 void Graph::URewire(bool strict, int *degrees)
 {
   PNodeVector &nv = nodes();
@@ -668,10 +667,11 @@ void Graph::URewire(bool strict, int *degrees)
     sum += n->m_tag;
   }
   m_linkData->clear();
-  m_netFactory->clearLinks();
+  m_netFactory->resizeLinks(0);
   
   linkNodesByTags(sum, strict);
 }
+
 
 void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
                                   PNodeVector *removed)
@@ -721,7 +721,6 @@ void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
   }
 }
 
-
 static int sg_sfDegreeCutoff = 0;
 static bool sg_isSfDegreeBelowCutoff(Node *nd)
 {
@@ -742,6 +741,39 @@ void Graph::ImposeDegreeCutoff(int cutoff)
     (*m_nodeMap)[n->m_name] = n;
   }
 }
+
+
+int Graph::AddTemporalLinks(int cnt)
+{
+  int ret = 0;
+  const int NC = (int)m_nodes->size();
+  for (int i = 0; i < cnt; i++)
+  {
+    Node *n1 = (*m_nodes)[(int) (NC * RAND_0_1)];
+    Node *n2 = (*m_nodes)[(int) (NC * RAND_0_1)];
+    if (!n1->findLink(n2))
+    {
+      linkSimple(n1, n2, false)->m_isTemp = true;
+      ret++;
+    }
+  }
+  return ret;
+}
+
+void Graph::ClearTemporalLinks()
+{
+  const int NC = (int)m_nodes->size();
+  const int LC = ldCount();
+  for (int i = 0; i < NC; i++)
+    (*m_nodes)[i]->clearTempLinks();
+  int cnt = 0;
+  for (cnt = 0; cnt < LC; cnt++)
+    if ((*m_linkData)[cnt]->m_isTemp)
+      break;
+  m_linkData->resize(cnt);
+  m_netFactory->resizeLinks(cnt);
+}
+
 
 void Graph::ReadCsv(const char *nPath, const char *lPath)
 {

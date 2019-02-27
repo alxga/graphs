@@ -34,7 +34,6 @@ typedef std::map<std::string, Node *>::reverse_iterator StrPNodeMapRIt;
 
 class Node
 {
-private:
   LinkVector m_links;
   LinkVector m_inLinks;
 
@@ -118,6 +117,32 @@ public:
 
     Link il = { this, d };
     n->m_inLinks.push_back(il);
+  }
+
+  void clearTempLinks()
+  {
+    LinkVector::iterator itx = m_links.begin();
+    LinkVector::iterator it = itx;
+    while (it != m_links.end())
+    {
+      if (!it->d->m_isTemp)
+        *itx++ = *it;
+      it++;
+    }
+    m_links.erase(itx, it);
+
+    itx = m_inLinks.begin();
+    it = itx;
+    while (it != m_inLinks.end())
+    {
+      if (!it->d->m_isTemp)
+        *itx++ = *it;
+      it++;
+    }
+    m_inLinks.erase(itx, it);
+
+    delete m_linksMap;
+    m_linksMap = 0;
   }
 
   void updateNumActLinks()

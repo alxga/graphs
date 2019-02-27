@@ -20,6 +20,7 @@ class LIBGRAPHS_API LinkData
     m_weight = m_length = 1;
     m_btws = -1;
     m_dactTime = -1;
+    m_isTemp = false;
   }
 
 public:
@@ -30,16 +31,11 @@ public:
   double m_length;
   double m_weight;
   int m_dactTime;
+  bool m_isTemp;
 
   LinkData()
   {
     init();
-  }
-
-  LinkData(const LinkData &v) :
-    m_directed(v.m_directed), m_length(v.m_length), m_weight(v.m_weight),
-    m_btws(-1), m_dactTime(-1)
-  {
   }
 
   const LinkData &operator= (const LinkData &v);

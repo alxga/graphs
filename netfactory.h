@@ -21,8 +21,8 @@ public:
   virtual ~INetFactory() {}
   virtual Node *nextNode() = 0;
   virtual LinkData *nextLink() = 0;
-  virtual void clearNodes() = 0;
-  virtual void clearLinks() = 0;
+  virtual void resizeNodes(int count) = 0;
+  virtual void resizeLinks(int count) = 0;
 };
 
 template<typename NType, typename LType>
@@ -59,14 +59,14 @@ template<typename NType, typename LType>
       return ret;
     }
 
-    virtual void clearNodes()
+    virtual void resizeNodes(int count)
     {
-      m_nodeMMgr.clear();
+      m_nodeMMgr.resize(count);
     }
 
-    virtual void clearLinks()
+    virtual void resizeLinks(int count)
     {
-      m_linkMMgr.clear();
+      m_linkMMgr.resize(count);
     }
   };
 
