@@ -23,7 +23,7 @@ protected:
   double m_c;
   double m_cdfMax;
   bool m_first;
-  
+
 public:
   MKSFDegreeDistr()
   {
@@ -43,7 +43,7 @@ public:
   virtual ~MKSFDegreeDistr()
   {
   }
-  
+
   virtual inline double genDouble()
   {
     double r = RAND_0_1;
@@ -61,7 +61,7 @@ protected:
   int m_max;
   double m_g;
   int *m_pool;
-  
+
   double initMin(double k);
   void initMax(double k);
   void initG(double k);
@@ -101,7 +101,7 @@ public:
   {
     delete [] m_pool;
   }
-  
+
   virtual inline int genInt()
   {
     return m_pool[(int) (RAND_0_1 * m_N)];

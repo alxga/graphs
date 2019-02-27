@@ -25,11 +25,11 @@ protected:
   PNodeVector *m_nodes;
   StrPNodeMap *m_nodeMap;
   PLinkDataVector *m_linkData;
-  
+
   void resizeAndResetNodes(size_t n);
 
   void linkByDistance(double r, Node *nd, PNodeList &lst, bool sameBin);
-  
+
   bool linkNodesByTags(int sumDegrees, bool strict);
   bool linkNodesByDistribution(IDoubleDistr *distr);
   bool linkNodesBA(int k);
@@ -102,7 +102,7 @@ public:
   size_t DeactLinks(size_t needDeact, size_t haveAct, int dactTime);
 
   int DeactSubGraphComponents(int dactTime);
-  
+
   void GenerateER(int n, double k);
   void GenerateRR(int n, int k);
   void GenerateBA(int n, int m);
@@ -111,7 +111,7 @@ public:
   void GenerateSFStrictly(int n, double k, double g);
   void GenerateRLat(int n);
   void GenerateSpatial(int n, double r, double w = 1, double h = 1);
-  
+
   /*
    If strict is true, we find an acceptable pair of nodes to link,
    otherwise the 2 randomly selected nodes are discarded even when they

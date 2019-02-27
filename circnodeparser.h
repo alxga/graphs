@@ -31,7 +31,7 @@ template<typename ColType>
           throw Exception("Incorrect node GDF column type");
       }
     }
-    
+
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
       NodeParser<ColType>::assignIndices(cols);

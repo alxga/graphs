@@ -119,7 +119,7 @@ void SFDegreeDistr::initProbs(double x)
 
   double sumRem = 0;
   std::vector<double> rems;
-  
+
   int minRem = m_min;
   for (int i = m_min; i <= m_max; i++)
   {

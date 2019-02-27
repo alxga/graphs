@@ -29,7 +29,7 @@ public:
   static void CalcPathToleranceBFS(Node *src, Node *dst,
                                    const PNodeVector &nodes,
                                    bool activeOnly);
-  
+
   // throws an exception if unequal link lengths are detected
   static double ApproxAvClssBFS(const PNodeVector &nodes, bool activeOnly);
   // if graph/component is not (optionally, actively) strongly connected,

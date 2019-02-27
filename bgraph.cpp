@@ -93,7 +93,7 @@ void BGraph::ReadDependencyLinks(const char *path, BGraph &g, bool isMutual)
 
   if (!difs.good())
     throw new Exception("Unable to open a dependencies input file");
-  
+
   std::string str;
   while (std::getline(difs, str))
   {

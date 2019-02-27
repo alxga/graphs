@@ -22,7 +22,7 @@ public:
   {
     m_dep = m_ctrl = NULL;
   }
-  
+
   inline BNode *ctrl() const { return m_ctrl; }
   inline BNode *dep() const { return m_dep; }
 

@@ -48,7 +48,7 @@ template<typename ColType>
           throw Exception("Incorrect node GDF column type");
       }
     }
-    
+
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
       m_nameIx = cols.find("name");
@@ -90,7 +90,7 @@ template<typename ColType>
         node->m_clCoef = std::stod(strs[m_clCoefIx]);
     }
   };
-  
+
 template<typename ColType>
   class LIBGRAPHS_API LinkParser
   {
@@ -100,7 +100,7 @@ template<typename ColType>
     int m_btwsIx;
     int m_lengthIx;
     int m_weightIx;
-    
+
     bool checkGdfColType(GraphFileCols<ColType> &cols,
                           int ix, GdfCol::DataType dt)
     {
@@ -109,7 +109,7 @@ template<typename ColType>
       GdfCol &col = (GdfCol &)cols[ix];
       return col.type() == dt;
     }
-    
+
     virtual void verifyTypes(GraphFileCols<ColType> &cols)
     {
       if (std::is_base_of<GdfCol, ColType>::value)
@@ -120,7 +120,7 @@ template<typename ColType>
           throw Exception("Incorrect link GDF column type");
       }
     }
-    
+
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
       m_name1Ix = cols.find("node1");

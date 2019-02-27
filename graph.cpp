@@ -34,12 +34,12 @@ bool Graph::linkNodesByTags(int sumDegrees, bool strict)
 
     r1 = (int) (sumDegrees * RAND_0_1);
     n1 = nodes[r1];
-    
+
     if (!strict)
     {
       r2 = (int) (sumDegrees * RAND_0_1);
       n2 = nodes[r2];
-      
+
       // remove nodes from the list
       nodes[r1] = nodes[sumDegrees - 1];
       nodes[r2] = nodes[sumDegrees - 2];
@@ -668,7 +668,7 @@ void Graph::URewire(bool strict, int *degrees)
   }
   m_linkData->clear();
   m_netFactory->resizeLinks(0);
-  
+
   linkNodesByTags(sum, strict);
 }
 
@@ -682,7 +682,7 @@ void Graph::ClearNodesByPredicate(bool (*chk)(Node *), bool rename,
   m_linkData->clear();
   delete m_nodeMap;
   m_nodeMap = new StrPNodeMap();
-  
+
   const int nc = nCount();
   PNodeVector *oNodes = m_nodes;
   auto_del<PNodeVector> del_oNodes(oNodes, false);
@@ -787,7 +787,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
 
   if (!nifs.good())
     throw Exception("Unable to open the nodes input file");
-  
+
   std::getline(nifs, str);
   nCols.parse(str);
   nparser->init(nCols);
@@ -800,7 +800,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
     SplitStr(str, strs, ",");
     parseNode(strs, nparser);
   }
-  
+
   LinkParser<CsvCol> *lparser = newLinkCsvParser();
   auto_del<LinkParser<CsvCol>> del_lparser(lparser, false);
 
@@ -808,7 +808,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
 
   if (!lifs.good())
     throw Exception("Unable to open the links input file");
-  
+
   std::getline(lifs, str);
   lCols.parse(str);
   lparser->init(lCols);
@@ -854,7 +854,7 @@ void Graph::WriteLinksCsv(const char *lPath, LinkWriter *writer)
 
   lwriter->writeCsvHeader(lifs);
   lifs << CSVENDL;
-  
+
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
   for (size_t i = 0; i < srcLinks.size(); i++)
@@ -895,7 +895,7 @@ void Graph::WriteGdf(const char *gPath,
 
   lwriter->writeGdfHeader(gfs);
   gfs << CSVENDL;
-  
+
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
   for (size_t i = 0; i < srcLinks.size(); i++)

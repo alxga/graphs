@@ -155,7 +155,7 @@ public:
   inline int numLinks() const { return (int)m_links.size(); }
   inline int numInLinks() const { return (int)m_inLinks.size(); }
   inline int numActLinks() const { return (int)m_numActLinks; }
-  
+
   inline LinkVector &links() { return m_links; }
   inline LinkVector &inLinks() { return m_inLinks; }
 
@@ -191,7 +191,7 @@ public:
     return NULL;
   }
 
-    
+
   DPoint m_coords;
   void setLng(double lng)
   {

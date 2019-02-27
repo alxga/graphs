@@ -161,7 +161,7 @@ double Alg::ApproxAvFarnessBFS(const PNodeVector &nodes, bool activeOnly,
     }
     n ++;
   }
-  
+
   return sum / (n * count);
 }
 
@@ -261,7 +261,7 @@ void Alg::CalcCentralitiesBFS(const PNodeVector &nodes, bool activeOnly,
 
       if (src->m_dtag > d)
         d = src->m_dtag;
-      
+
       cur->m_clss += 1.0 / src->m_dtag;
       cur->m_frns += src->m_dtag;
       ccSize++;
@@ -584,7 +584,7 @@ int Alg::AssignUComponentIDs(const PNodeVector &nodes, bool activeOnly)
 
     components.push_back(current);
   }
-  
+
   std::sort(components.begin(), components.end(), sg_compPNodeListsBySize);
   int ret = components.size() > 0 ? (int)components[0]->size() : -1;
 
@@ -672,7 +672,7 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
 {
   for (size_t i = 0; i < nodes.size(); i++)
     nodes[i]->m_tag = -1;
-  
+
   // Run backward DFS
   // Node tags: -1: unseen; 0: added to the stack; 1: in-links processed
   PNodeList L;

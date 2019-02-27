@@ -61,7 +61,7 @@ public:
     // Instead, I use the exact result 
     if (dth < 1e-7)
       return std::abs(m_radial - v.m_radial);
-    
+
     double ret;
     ret = (std::cosh(m_radial)*std::cosh(v.m_radial)) -
           (std::sinh(m_radial)*std::sinh(v.m_radial) * std::cos(dth));
