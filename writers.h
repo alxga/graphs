@@ -16,7 +16,13 @@ class LIBGRAPHS_API Graph;
 
 class LIBGRAPHS_API NodeWriter
 {
-public:
+  bool m_writeCentralities;
+
+public:  
+  NodeWriter(bool wCentralities = false) : m_writeCentralities(wCentralities)
+  {
+  }
+
   virtual void writeCsvHeader(std::ostream &os);
   virtual bool writeCsv(std::ostream &os, const Node *node);
   virtual void writeGdfHeader(std::ostream &os);
@@ -25,9 +31,12 @@ public:
 
 class LIBGRAPHS_API LinkWriter
 {
+  bool m_writeCentralities;
   bool m_writeWeights;
+
 public:
-  LinkWriter(bool wWeights = false) : m_writeWeights(wWeights)
+  LinkWriter(bool wCentralities = false, bool wWeights = false) :
+    m_writeCentralities(wCentralities), m_writeWeights(wWeights)
   {
   }
 

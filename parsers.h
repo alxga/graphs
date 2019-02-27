@@ -19,6 +19,7 @@ template<typename ColType>
     int m_nameIx;
     int m_btwsIx;
     int m_clssIx;
+    int m_frnsIx;
     int m_anndIx;
     int m_clCoefIx;
     int m_xIx;
@@ -39,6 +40,7 @@ template<typename ColType>
       {
         if (!checkGdfColType(cols, m_btwsIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_clssIx, GdfCol::Dbl) ||
+            !checkGdfColType(cols, m_frnsIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_anndIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_clCoefIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_xIx, GdfCol::Dbl) ||
@@ -56,6 +58,7 @@ template<typename ColType>
         throw Exception("Unable to find a required node column");
       m_btwsIx = cols.find("btws");
       m_clssIx = cols.find("clss");
+      m_frnsIx = cols.find("frns");
       m_anndIx = cols.find("annd");
       m_clCoefIx = cols.find("cl_coef");
       m_xIx = cols.find("lng");
@@ -79,6 +82,8 @@ template<typename ColType>
         node->m_btws = std::stod(strs[m_btwsIx]);
       if (m_clssIx >= 0)
         node->m_clss = std::stod(strs[m_clssIx]);
+      if (m_frnsIx >= 0)
+        node->m_frns = std::stod(strs[m_frnsIx]);
       if (m_anndIx >= 0)
         node->m_annd = std::stod(strs[m_anndIx]);
       if (m_clCoefIx >= 0)
@@ -93,7 +98,6 @@ template<typename ColType>
     int m_name1Ix;
     int m_name2Ix;
     int m_btwsIx;
-    int m_clssIx;
     int m_lengthIx;
     int m_weightIx;
     
@@ -111,7 +115,6 @@ template<typename ColType>
       if (std::is_base_of<GdfCol, ColType>::value)
       {
         if (!checkGdfColType(cols, m_btwsIx, GdfCol::Dbl) ||
-            !checkGdfColType(cols, m_clssIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_lengthIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_weightIx, GdfCol::Dbl))
           throw Exception("Incorrect link GDF column type");
@@ -129,7 +132,6 @@ template<typename ColType>
       if (m_name1Ix < 0 || m_name2Ix < 0)
         throw Exception("Unable to find a required link column");
       m_btwsIx = cols.find("btws");
-      m_clssIx = cols.find("clss");
       m_lengthIx = cols.find("length");
       m_weightIx = cols.find("weight");
     }
@@ -151,8 +153,6 @@ template<typename ColType>
 
       if (m_btwsIx >= 0)
         ld->m_btws = std::stod(strs[m_btwsIx]);
-      if (m_clssIx >= 0)
-        ld->m_clss = std::stod(strs[m_clssIx]);
       if (m_lengthIx >= 0)
         ld->m_length = std::stod(strs[m_lengthIx]);
       if (m_weightIx >= 0)

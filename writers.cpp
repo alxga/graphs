@@ -12,10 +12,14 @@
 void NodeWriter::writeCsvHeader(std::ostream &os)
 {
   os << "name";
-  os << "," << "btws";
-  os << "," << "clss";
   os << "," << "lat";
   os << "," << "lng";
+  if (m_writeCentralities)
+  {
+    os << "," << "btws";
+    os << "," << "clss";
+    os << "," << "frns";
+  }
 }
 
 bool NodeWriter::writeCsv(std::ostream &os, const Node *node)
@@ -23,10 +27,14 @@ bool NodeWriter::writeCsv(std::ostream &os, const Node *node)
   const int prec = 10;
 
   os << node->m_name;
-  os << "," << std::setprecision(prec) << node->m_btws;
-  os << "," << std::setprecision(prec) << node->m_clss;
   os << "," << std::setprecision(prec) << node->lat();
   os << "," << std::setprecision(prec) << node->lng();
+  if (m_writeCentralities)
+  {
+    os << "," << std::setprecision(prec) << node->m_btws;
+    os << "," << std::setprecision(prec) << node->m_clss;
+    os << "," << std::setprecision(prec) << node->m_frns;
+  }
 
   return true;
 }
@@ -36,10 +44,14 @@ void NodeWriter::writeGdfHeader(std::ostream &os)
   os << "nodedef> ";
 
   os << "name VARCHAR";
-  os << "," << "btws DOUBLE";
-  os << "," << "clss DOUBLE";
   os << "," << "lat DOUBLE";
   os << "," << "lng DOUBLE";
+  if (m_writeCentralities)
+  {
+    os << "," << "btws DOUBLE";
+    os << "," << "clss DOUBLE";
+    os << "," << "frns DOUBLE";
+  }
 }
 
 bool NodeWriter::writeGdf(std::ostream &os, const Node *node)
@@ -47,10 +59,14 @@ bool NodeWriter::writeGdf(std::ostream &os, const Node *node)
   const int prec = 10;
 
   os << node->m_name;
-  os << "," << std::setprecision(prec) << node->m_btws;
-  os << "," << std::setprecision(prec) << node->m_clss;
   os << "," << std::setprecision(prec) << node->lat();
   os << "," << std::setprecision(prec) << node->lng();
+  if (m_writeCentralities)
+  {
+    os << "," << std::setprecision(prec) << node->m_btws;
+    os << "," << std::setprecision(prec) << node->m_clss;
+    os << "," << std::setprecision(prec) << node->m_frns;
+  }
 
   return true;
 }
@@ -62,8 +78,12 @@ void LinkWriter::writeCsvHeader(std::ostream &os)
   os << "," << "node2";
   os << "," << "directed";
   os << "," << "length";
-  os << "," << "btws";
-  os << "," << "clss";
+  if (m_writeCentralities)
+  {
+    os << "," << "btws";
+    os << "," << "clss";
+    os << "," << "frns";
+  }
   if (m_writeWeights)
     os << "," << "weight";
 }
@@ -77,8 +97,12 @@ bool LinkWriter::writeCsv(std::ostream &os, const LinkData *ld,
   os << "," << n2->m_name;
   os << "," << (ld->m_directed ? "true" : "false");
   os << "," << std::setprecision(prec) << ld->m_length;
-  os << "," << std::setprecision(prec) << ld->m_btws;
-  os << "," << std::setprecision(prec) << ld->m_clss;
+  if (m_writeCentralities)
+  {
+    os << "," << std::setprecision(prec) << ld->m_btws;
+    os << "," << std::setprecision(prec) << (n1->m_clss + n2->m_clss) / 2;
+    os << "," << std::setprecision(prec) << (n1->m_frns + n2->m_frns) / 2;
+  }
   if (m_writeWeights)
     os << "," << std::setprecision(prec) << ld->m_weight;
 
@@ -93,8 +117,12 @@ void LinkWriter::writeGdfHeader(std::ostream &os)
   os << "," << "node2 VARCHAR";
   os << "," << "directed BOOLEAN";
   os << "," << "length DOUBLE";
-  os << "," << "btws DOUBLE";
-  os << "," << "clss DOUBLE";
+  if (m_writeCentralities)
+  {
+    os << "," << "btws DOUBLE";
+    os << "," << "clss DOUBLE";
+    os << "," << "frns DOUBLE";
+  }
   if (m_writeWeights)
     os << "," << "weight DOUBLE";
 }
@@ -108,8 +136,12 @@ bool LinkWriter::writeGdf(std::ostream &os, const LinkData *ld,
   os << "," << n2->m_name;
   os << "," << (ld->m_directed ? "true" : "false");
   os << "," << std::setprecision(prec) << ld->m_length;
-  os << "," << std::setprecision(prec) << ld->m_btws;
-  os << "," << std::setprecision(prec) << ld->m_clss;
+  if (m_writeCentralities)
+  {
+    os << "," << std::setprecision(prec) << ld->m_btws;
+    os << "," << std::setprecision(prec) << (n1->m_clss + n2->m_clss) / 2;
+    os << "," << std::setprecision(prec) << (n1->m_frns + n2->m_frns) / 2;
+  }
   if (m_writeWeights)
     os << "," << std::setprecision(prec) << ld->m_weight;
 

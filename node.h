@@ -51,7 +51,8 @@ private:
     m_compId = -1;
     m_timesInGC = 0;
     m_compSize = 0;
-    m_annd = m_btws = m_clss = m_clCoef = 0;
+    m_btws = m_clss = m_frns = -1;
+    m_annd = m_clCoef = 0;
     m_dactTime = -1;
     m_pathTol = 0;
 
@@ -74,6 +75,7 @@ public:
 
   double m_annd;
   double m_btws;
+  double m_frns;
   double m_clss;
   double m_clCoef;
 

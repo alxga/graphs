@@ -18,7 +18,7 @@ class LIBGRAPHS_API LinkData
   {
     m_directed = false;
     m_weight = m_length = 1;
-    m_btws = m_clss = 0;
+    m_btws = -1;
     m_dactTime = -1;
   }
 
@@ -27,7 +27,6 @@ public:
 
   bool m_directed;
   double m_btws;
-  double m_clss;
   double m_length;
   double m_weight;
   int m_dactTime;
@@ -39,7 +38,7 @@ public:
 
   LinkData(const LinkData &v) :
     m_directed(v.m_directed), m_length(v.m_length), m_weight(v.m_weight),
-    m_btws(0), m_clss(0), m_dactTime(-1)
+    m_btws(-1), m_dactTime(-1)
   {
   }
 

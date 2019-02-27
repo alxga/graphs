@@ -61,7 +61,8 @@ void Alg::CalcDistancesBFS(Node *src, Node * const *nodes, int count,
         queue.push_back(n2);
       }
       else if (n2->m_dtag > curd + l->m_length)
-        throw Exception("Unequal link lengths detected in a BFS paths calculation");
+        throw Exception("Unsupported link lengths detected in a BFS paths "
+                        "calculation");
     }
   }
 #endif
@@ -101,6 +102,32 @@ void Alg::CalcPathToleranceBFS(Node *src, Node *dst,
 }
 
 
+double Alg::ApproxAvClssBFS(const PNodeVector &nodes, bool activeOnly)
+{
+  int n = 0;
+  double sum = 0;
+  int count = (int)nodes.size();
+  int step = count > 1000 ? count / 1000 : 1;
+  for (int i = 0; i < count; i += step)
+  {
+    Node &cur = *nodes[i];
+
+    if (activeOnly && cur.m_dactTime >= 0)
+      continue;
+
+    CalcDistancesBFS(&cur, &nodes[0], count, activeOnly, false);
+    for (int j = 0; j < count; j++)
+    {
+      Node &nd = *nodes[j];
+      if (nd.m_dtag > 0)
+        sum += 1.0 / nd.m_dtag;
+    }
+    n ++;
+  }  
+  return sum / (n * count);
+}
+
+
 #define INIT_PNODES_COMPID \
   int count = 0; \
   size_t fCount = nodes.size(); \
@@ -113,9 +140,8 @@ void Alg::CalcPathToleranceBFS(Node *src, Node *dst,
       nodes[i]->m_tag = 0; \
     }
 
-
-double Alg::ApproxAvClssBFS(const PNodeVector &nodes, bool activeOnly,
-                            int compId)
+double Alg::ApproxAvFarnessBFS(const PNodeVector &nodes, bool activeOnly,
+                               int compId)
 {
   INIT_PNODES_COMPID
 
@@ -177,71 +203,87 @@ double Alg::ApproxUDiameterBFS(const PNodeVector &nodes, bool activeOnly,
   return D;
 }
 
+
 void Alg::CalcCentralitiesBFS(const PNodeVector &nodes, bool activeOnly,
-                              double *D, int compId)
+                              double *diam)
 {
-  INIT_PNODES_COMPID
-
-  double d = 0;
-
-  for (int i = 0; i < count; i++)
+  // if activeOnly is true:
+  //  - set all inactive nodes centralities to -1
+  //  - set all inactive links centralities to -1
+  //  - set all inactive nodes incident link centralities to -1
+  // copy relevant nodes to pNodes and save the number of active nodes as count
+  // initialize relevant nodes and links centralities to 0
+  int count = 0;
+  size_t fCount = nodes.size();
+  Node **pNodes = new Node *[fCount];
+  auto_del<Node *> del_pNodes(pNodes, true);
+  for (size_t i = 0; i < fCount; i++)
   {
-    Node *n = pNodes[i];
-    n->m_btws = n->m_clss = 0;
+    Node *n = nodes[i];
     LinkVector &links = n->links();
-    for (size_t j = 0; j < links.size(); j++)
+    LinkVector &inLinks = n->inLinks();
+    if (activeOnly && n->m_dactTime >= 0)
     {
-      LinkData *l = links[j].d;
-      l->m_btws = l->m_clss = 0;
+      n->m_btws = n->m_clss = n->m_frns = -1;
+      for (size_t j = 0; j < links.size(); j++)
+        links[j].d->m_btws = -1;
+      for (size_t j = 0; j < inLinks.size(); j++)
+        links[j].d->m_btws = -1;
+    }
+    else
+    {
+      n->m_btws = n->m_clss = n->m_frns = 0;
+      pNodes[count++] = nodes[i];
+      for (size_t j = 0; j < links.size(); j++)
+      {
+        LinkData *ld = links[j].d;
+        if (activeOnly && ld->m_dactTime >= 0)
+          ld->m_btws = -1;
+        else
+          ld->m_btws = 0;
+      }
     }
   }
 
+
+  double d = 0; // temporary variable to store the diameter
   for (int i = 0; i < count; i++)
   {
     Node *cur = pNodes[i];
     CalcDistancesBFS(cur, pNodes, count, activeOnly, false);
 
+    int ccSize = 1;
     for (int j = 0; j < count; j++)
     {
-      Node *n2 = pNodes[j];
-      if (cur == n2)
+      Node *src = pNodes[j];
+      if (cur == src || src->m_dtag < 0)
         continue;
-      if (n2->m_dtag > d)
-        d = n2->m_dtag;
-      cur->m_clss += n2->m_dtag;
 
-      Node *dst = n2;
-      if (dst->m_dtag >= 0)
+      if (src->m_dtag > d)
+        d = src->m_dtag;
+      
+      cur->m_clss += 1.0 / src->m_dtag;
+      cur->m_frns += src->m_dtag;
+      ccSize++;
+
+      Node *prv = src;
+      Node *nxt = prv->m_ntag;
+      while (nxt != cur)
       {
-        Node *src = dst->m_ntag;
-        while (src != NULL)
-        {
-          LinkData *l = src->findLink(dst);
-          l->m_btws++;
-          if (src != cur)
-            src->m_btws++;
-          dst = src;
-          src = dst->m_ntag;
-        }
+        LinkData *ld = prv->findLink(nxt);
+        ld->m_btws++;
+        nxt->m_btws++;
+        prv = nxt;
+        nxt = prv->m_ntag;
       }
-      else
-        throw Exception("The graph/component is not strongly connected");
+      prv->findLink(nxt)->m_btws++;
     }
-    cur->m_clss /= count;
+
+    cur->m_clss /= fCount;
+    cur->m_frns /= ccSize;
   }
-  for (int i = 0; i < count; i++)
-  {
-    Node *src = pNodes[i];
-    LinkVector &links = src->links();
-    for (size_t j = 0; j < links.size(); j++)
-    {
-      LinkData *l = links[j].d;
-      Node *dst = links[j].n;
-      l->m_clss = (src->m_clss + dst->m_clss) / 2;
-    }
-  }
-  if (D != NULL)
-    *D = d;
+  if (diam != NULL)
+    *diam = d;
 }
 
 
@@ -383,6 +425,42 @@ double Alg::FindUMST(Node * const *nodes, int count, SrcLinkVector &ret)
 double Alg::FindUMST(const PNodeVector &nodes, SrcLinkVector &ret)
 {
   return Alg::FindUMST(&nodes[0], (int)nodes.size(), ret);
+}
+
+
+double Alg::FindUMSTKruskal(const PNodeVector &nodes,
+                            SrcLinkVector &srcLinks,
+                            SrcLinkVector &ret)
+{
+  const int NC = (int)nodes.size();
+  const int LC = (int)srcLinks.size();
+  for (int i = 0; i < NC; i++)
+    nodes[i]->m_tag = i;
+
+  double totalCost = 0;
+  UnionFind ufind(NC);
+  for (int i = 0; i < LC; i++)
+  {
+    SrcLink &srcLink = srcLinks[i];
+    Node *n1 = srcLink.src;
+    Node *n2 = srcLink.link.n;
+    int comp1 = ufind.find(n1->m_tag);
+    int comp2 = ufind.find(n2->m_tag);
+    if (comp1 == comp2)
+      continue;
+    else
+    {
+      totalCost += srcLink.link.d->m_weight;
+      ret.push_back(srcLink);
+      ufind.merge(comp1, comp2);
+      if (ret.size() == NC - 1)
+        break;
+    }
+  }
+  if ((int)ret.size() != NC - 1)
+    throw Exception("MST links number is not equal the number of nodes, "
+                    "less 1; the graph may be disconnected");
+  return totalCost;
 }
 
 
