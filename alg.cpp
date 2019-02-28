@@ -452,7 +452,7 @@ double Alg::FindUMSTKruskal(const PNodeVector &nodes,
     {
       totalCost += srcLink.link.d->m_weight;
       ret.push_back(srcLink);
-      ufind.merge(comp1, comp2);
+      ufind.mergeDistinctRoots(comp1, comp2);
       if (ret.size() == NC - 1)
         break;
     }
