@@ -13,6 +13,8 @@
 class LIBGRAPHS_API Alg
 {
 public:
+  static double INF;
+
   // uses m_ntag to store an immediate incoming link node on a shortest path,
   // and m_dtag to store the distance from src to the node
   // follows a node's incoming links if forward is false
@@ -68,6 +70,23 @@ public:
   // wrapper function for the previous one
   static void RunDijkstra(Node *src, const PNodeVector &nodes,
                           bool activeOnly, bool forward);
+
+  // draft implementation of the Bellman-Ford algorithm for the single source
+  // shortest path problem in graphs with potentially negative link lengths
+  // also calculates node weights for the Johnson all pairs shortest path
+  // algorithm if src is NULL
+  // throws an exception if the graph contains a negative cycle
+  static void RunBellmanFord(Node *src, Node * const *nodes, int count);
+  // wrapper function for the previous one
+  static void RunBellmanFord(Node *src, const PNodeVector &nodes);
+
+  // draft implementation of the Floyd-Warshall algorithm for the all pairs
+  // shortest path problem in graphs with potentially negative link lengths
+  // returns the minimum found path length (among all pairs),
+  // throws an exception if the graph contains a negative cycle
+  static double RunFloydWarshall(Node * const *nodes, int count);
+  // wrapper function for the previous one
+  static double RunFloydWarshall(const PNodeVector &nodes);
 
   // finds a minimum spanning tree of an undirected graph with link costs
   // given by their weights, throws an exception if the graph is not connected

@@ -12,6 +12,9 @@
 const double EPS0 = 1e-8;
 
 
+double Alg::INF = 1e300;
+
+
 void Alg::CalcDistancesBFS(Node *src, const PNodeVector &nodes,
                            bool activeOnly, bool forward)
 {
@@ -348,6 +351,166 @@ void Alg::RunDijkstra(Node *src, const PNodeVector &nodes, bool activeOnly,
 }
 
 
+void Alg::RunBellmanFord(Node *src, Node * const *nodes, int count)
+{
+  double *a = new double [2 * count];
+  auto_del<double> del_a(a, true);
+
+  for (int i = 0; i < count; i++)
+    nodes[i]->m_tag = i;
+  if (src != NULL)
+  {
+    for (int i = 0; i < count; i++)
+      a[i] = INF;
+    a[src->m_tag] = 0;
+    src->m_ntag = NULL;
+  }
+  else
+  {
+    for (int i = 0; i < count; i++)
+      nodes[i]->m_ntag = NULL;
+    memset(a, 0, count * sizeof(double));
+  }
+
+  bool updated;
+  int prevOffs, curOffs;
+  for (int s = 1; s <= count; s++)
+  {
+    prevOffs = ((s + 1) % 2) * count;
+    curOffs = (s % 2) * count;
+    updated = false;
+    for (int j = 0; j < count; j++)
+    {
+      Node *n = nodes[j];
+      const LinkVector &inLinks = n->inLinks();
+      double bestLength = a[j + prevOffs];
+      Node *bestFrom = NULL;
+      for (int k = 0; k < (int)inLinks.size(); k++)
+      {
+        Node *from = inLinks[k].n;
+        double length = inLinks[k].d->m_length +
+                        a[from->m_tag + prevOffs];
+        if (length < bestLength)
+        {
+          bestLength = length;
+          bestFrom = from;
+        }
+      }
+      if (bestFrom != NULL)
+      {
+        updated = true;
+        n->m_ntag = bestFrom;
+      }
+      a[j + curOffs] = bestLength;
+    }
+    if (!updated)
+      break;
+  }
+  if (updated)
+    throw Exception("A negative loop detected in Bellman-Ford");
+
+  for (int i = 0; i < count; i++)
+    nodes[i]->m_dtag = a[i + curOffs];
+}
+
+void Alg::RunBellmanFord(Node *src, const PNodeVector &nodes)
+{
+  Alg::RunBellmanFord(src, &nodes[0], (int)nodes.size());
+}
+
+
+static void sg_PrintFWMatrix(double *a, int c)
+{
+  if (c > 10)
+  {
+    printf("The matrix size is more than 10" ENDL);
+    return;
+  }
+  for (int i = 0; i < c; i++)
+  {
+    if (a[i * c] < Alg::INF)
+      printf("%3.0lf", a[i * c]);
+    else
+      printf("INF");
+    for (int j = 1; j < c; j++)
+      if (a[i * c + j] < Alg::INF)
+        printf(" %3.0lf", a[i * c + j]);
+      else
+        printf(" INF");
+    printf(ENDL);
+  }
+}
+
+double Alg::RunFloydWarshall(Node * const *nodes, int count)
+{
+  double *a1 = new double [count * count];
+  auto_del<double> del_a1(a1, true);
+  double *a2 = new double [count * count];
+  auto_del<double> del_a2(a2, true);
+
+  for (int i = 0; i < count; i++)
+    nodes[i]->m_tag = i;
+  
+  for (int i = 0; i < count * count; i++)
+    a1[i] = INF;
+  for (int i = 0; i < count; i++)
+  {
+    a1[i + i * count] = 0;
+    const LinkVector &links = nodes[i]->links();
+    for (int j = 0; j < (int)links.size(); j++)
+      a1[i * count + links[j].n->m_tag] = links[j].d->m_length;
+  }
+
+  //printf("Initial Matrix:" ENDL);
+  //sg_PrintFWMatrix(a1, count);
+
+  double *prevA, *curA;
+  for (int k = 0; k < count; k++)
+  {
+    if (k % 2 == 0)
+    {
+      prevA = a1;
+      curA = a2;
+    }
+    else
+    {
+      prevA = a2;
+      curA = a1;
+    }
+
+    for (int i = 0; i < count; i++)
+      for (int j = 0; j < count; j++)
+      {
+        double prevLength = prevA[i * count + j];
+        double curLength = prevA[i * count + k] + prevA[k * count + j];
+        if (curLength > prevLength)
+          curLength = prevLength;
+        curA[i * count + j] = curLength;
+        //curA[i * count + j] = prevA[i * count + j] +
+        //                      prevA[i * count + k] * prevA[k * count + j];
+      }
+
+    //printf("Matrix at max id = %d:" ENDL, k + 1);    
+    //sg_PrintFWMatrix(curA, count);
+  }
+  double ret = INF;
+  for (int i = 0; i < count; i++)
+  {
+    if (curA[i * count + i] < 0)
+      throw Exception("A negative loop detected in Floyd-Warshall");
+    for (int j = 0; j < count; j++)
+      if (curA[i * count + j] < ret)
+        ret = curA[i * count + j];
+  }
+  return ret;
+}
+
+double Alg::RunFloydWarshall(const PNodeVector &nodes)
+{
+  return Alg::RunFloydWarshall(&nodes[0], (int)nodes.size());
+}
+
+
 struct PQItemMST
 {
   Node *node;
@@ -674,7 +837,7 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
     nodes[i]->m_tag = -1;
 
   // Run backward DFS
-  // Node tags: -1: unseen; 0: added to the stack; 1: in-links processed
+  // Node tags: -1: unseen; 0: added to the stack; 1: in-links added; 2: processed
   PNodeList L;
   PNodeStack S;
   for (size_t i = 0; i < nodes.size(); i++)
@@ -689,9 +852,12 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
     while (S.size() > 0)
     {
       Node *sn = S.top();
-      if (sn->m_tag > 0)
+      if (sn->m_tag > 1)
+        S.pop();
+      else if (sn->m_tag == 1)
       {
         S.pop();
+        sn->m_tag = 2;
         L.push_front(sn);
       }
       else
@@ -700,7 +866,7 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
         for (size_t j = 0; j < iLinks.size(); j++)
         {
           Node *src = iLinks[j].n;
-          if (src->m_tag < 0)
+          if (src->m_tag <= 0)
           {
             S.push(src);
             src->m_tag = 0;
@@ -712,20 +878,20 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
   }
 
   // Run forward BFS
-  // Node tags: 1: unseen; 2: processed
+  // Node tags: 2: unseen; 3: processed
   PNodeQueue Q;
   std::map<Node *, PNodeList *> D;
   for (PNodeList::iterator it = L.begin(); it != L.end(); it++)
   {
     Node *n = *it;
-    if (n->m_tag > 1)
+    if (n->m_tag > 2)
       continue;
 
     PNodeList *l = new PNodeList();
     D[n] = l;
 
     Q.push(n);
-    n->m_tag = 2;
+    n->m_tag = 3;
     l->push_back(n);
 
     while (Q.size() > 0)
@@ -736,10 +902,10 @@ int Alg::AssignSgComponentIDs(const PNodeVector &nodes)
       for (size_t j = 0; j < links.size(); j++)
       {
         Node *dst = links[j].n;
-        if (dst->m_tag <= 1)
+        if (dst->m_tag <= 2)
         {
           Q.push(dst);
-          dst->m_tag = 2;
+          dst->m_tag = 3;
           l->push_back(dst);
         }
       }
