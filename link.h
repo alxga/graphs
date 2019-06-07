@@ -12,10 +12,11 @@
 #ifndef LINK_HEADER_FILE_INCLUDED
 #define LINK_HEADER_FILE_INCLUDED
 
-class LIBGRAPHS_API LinkData
+class LinkData
 {
   void init()
   {
+    m_name = "";
     m_directed = false;
     m_weight = m_length = 1;
     m_btws = -1;
@@ -26,6 +27,7 @@ class LIBGRAPHS_API LinkData
 public:
   mutable int m_tag;
 
+  std::string m_name;
   bool m_directed;
   double m_btws;
   double m_length;
@@ -38,7 +40,11 @@ public:
     init();
   }
 
-  const LinkData &operator= (const LinkData &v);
+  const LinkData &operator= (const LinkData &v)
+  {
+    memcpy(this, &v, sizeof(LinkData));
+    return *this;
+  }
 
   virtual void reinit()
   {

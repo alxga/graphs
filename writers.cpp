@@ -74,7 +74,8 @@ bool NodeWriter::writeGdf(std::ostream &os, const Node *node)
 
 void LinkWriter::writeCsvHeader(std::ostream &os)
 {
-  os << "node1";
+  os << "name";
+  os << "," << "node1";
   os << "," << "node2";
   os << "," << "directed";
   os << "," << "length";
@@ -93,7 +94,8 @@ bool LinkWriter::writeCsv(std::ostream &os, const LinkData *ld,
 {
   const int prec = 10;
 
-  os << n1->m_name;
+  os << ld->m_name;
+  os << "," << n1->m_name;
   os << "," << n2->m_name;
   os << "," << (ld->m_directed ? "true" : "false");
   os << "," << std::setprecision(prec) << ld->m_length;
@@ -113,7 +115,8 @@ void LinkWriter::writeGdfHeader(std::ostream &os)
 {
   os << "edgedef> ";
 
-  os << "node1 VARCHAR";
+  os << "name VARCHAR";
+  os << "," << "node1 VARCHAR";
   os << "," << "node2 VARCHAR";
   os << "," << "directed BOOLEAN";
   os << "," << "length DOUBLE";
@@ -132,7 +135,8 @@ bool LinkWriter::writeGdf(std::ostream &os, const LinkData *ld,
 {
   const int prec = 10;
 
-  os << n1->m_name;
+  os << ld->m_name;
+  os << "," << n1->m_name;
   os << "," << n2->m_name;
   os << "," << (ld->m_directed ? "true" : "false");
   os << "," << std::setprecision(prec) << ld->m_length;

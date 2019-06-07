@@ -95,6 +95,7 @@ template<typename ColType>
   class LIBGRAPHS_API LinkParser
   {
   protected:
+    int m_nameIx;
     int m_name1Ix;
     int m_name2Ix;
     int m_btwsIx;
@@ -123,6 +124,9 @@ template<typename ColType>
 
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
+      m_nameIx = cols.find("name");
+      if (m_nameIx < 0)
+        m_nameIx = cols.find("lid");
       m_name1Ix = cols.find("node1");
       if (m_name1Ix < 0)
         m_name1Ix = cols.find("source");
@@ -146,6 +150,8 @@ template<typename ColType>
     virtual void parse(StringVector &strs, LinkData *ld,
                        std::string &name1, std::string &name2)
     {
+      if (m_nameIx >= 0)
+        ld->m_name = strs[m_nameIx];
       name1 = strs[m_name1Ix];
       name2 = strs[m_name2Ix];
 

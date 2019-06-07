@@ -88,9 +88,6 @@
     <ClCompile Include="graph.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="link.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="writers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

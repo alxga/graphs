@@ -58,6 +58,25 @@ class Node
     initLinks();
   }
 
+protected:
+  inline void addLinkUnilateral(const Link &l)
+  {
+    if (m_links.size() == 300)
+    {
+      m_linksMap = new std::map<Node *, LinkData *>();
+      for (size_t i = 0; i < m_links.size(); i++)
+        (*m_linksMap)[m_links[i].n] = m_links[i].d;
+    }
+    m_links.push_back(l);
+    if (m_linksMap != NULL)
+      (*m_linksMap)[l.n] = l.d;
+  }
+
+  inline void addInLinkUnilateral(const Link &il)
+  {
+    m_inLinks.push_back(il);
+  }
+
 public:
   std::string m_name;
   mutable int m_tag;
@@ -105,18 +124,9 @@ public:
   void link(Node *n, LinkData *d)
   {
     Link l = { n, d };
-    if (m_links.size() == 300)
-    {
-      m_linksMap = new std::map<Node *, LinkData *>();
-      for (size_t i = 0; i < m_links.size(); i++)
-        (*m_linksMap)[m_links[i].n] = m_links[i].d;
-    }
-    m_links.push_back(l);
-    if (m_linksMap != NULL)
-      (*m_linksMap)[n] = d;
-
+    addLinkUnilateral(l);
     Link il = { this, d };
-    n->m_inLinks.push_back(il);
+    n->addInLinkUnilateral(il);
   }
 
   void clearTempLinks()
