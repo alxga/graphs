@@ -45,15 +45,13 @@ template<typename ColType>
             !checkGdfColType(cols, m_clCoefIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_xIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_yIx, GdfCol::Dbl))
-          throw Exception("Incorrect node GDF column type");
+          throw Exception("Incorrect GDF column type (node)");
       }
     }
 
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
       m_nameIx = cols.find("name");
-      if (m_nameIx < 0)
-        m_nameIx = cols.find("id");
       if (m_nameIx < 0)
         throw Exception("Unable to find a required node column");
       m_btwsIx = cols.find("btws");
@@ -118,15 +116,13 @@ template<typename ColType>
         if (!checkGdfColType(cols, m_btwsIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_lengthIx, GdfCol::Dbl) ||
             !checkGdfColType(cols, m_weightIx, GdfCol::Dbl))
-          throw Exception("Incorrect link GDF column type");
+          throw Exception("Incorrect GDF column type (link)");
       }
     }
 
     virtual void assignIndices(GraphFileCols<ColType> &cols)
     {
       m_nameIx = cols.find("name");
-      if (m_nameIx < 0)
-        m_nameIx = cols.find("lid");
       m_name1Ix = cols.find("node1");
       if (m_name1Ix < 0)
         m_name1Ix = cols.find("source");

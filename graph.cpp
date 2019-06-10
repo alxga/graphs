@@ -793,8 +793,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   nparser->init(nCols);
   while (std::getline(nifs, str))
   {
-    Trim(str);
-    if (str.empty()) continue; // skip empty lines
+    if (StrIsWhiteSpace(str)) continue; // skip empty lines
 
     StringVector strs;
     SplitStr(str, strs, ",");
@@ -814,8 +813,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   lparser->init(lCols);
   while (std::getline(lifs, str))
   {
-    Trim(str);
-    if (str.empty()) continue; // skip empty lines
+    if (StrIsWhiteSpace(str)) continue; // skip empty lines
 
     StringVector strs;
     SplitStr(str, strs, ",");
