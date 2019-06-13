@@ -26,6 +26,7 @@ class LinkData
 
 public:
   mutable int m_tag;
+  mutable double m_dtag;
 
   std::string m_name;
   bool m_directed;

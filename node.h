@@ -81,6 +81,9 @@ public:
   std::string m_name;
   mutable int m_tag;
   mutable double m_dtag;
+  mutable double m_dtag2;
+  mutable double m_dtag3;
+  mutable double m_dtag4;
   mutable Node *m_ntag;
 
   int m_compId;
