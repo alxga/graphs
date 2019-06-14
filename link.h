@@ -51,6 +51,8 @@ public:
   {
     init();
   }
+
+  virtual double traverse_time() const { return m_length; }
 };
 typedef std::list<LinkData> LinkDataList;
 typedef std::vector<LinkData> LinkDataVector;
