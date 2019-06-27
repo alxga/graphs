@@ -826,18 +826,18 @@ void Graph::WriteNodesCsv(const char *nPath, NodeWriter *writer)
   NodeWriter *nwriter = writer ? writer : newNodeWriter();
   auto_del<NodeWriter> del_nwriter(nwriter, false);
 
-  std::ofstream nifs(nPath, std::ios_base::out | std::ios_base::binary);
-  if (!nifs.good())
+  std::ofstream nofs(nPath, std::ios_base::out | std::ios_base::binary);
+  if (!nofs.good())
     throw Exception("Unable to open the nodes output file");
 
-  nwriter->writeCsvHeader(nifs);
-  nifs << CSVENDL;
+  nwriter->writeCsvHeader(nofs);
+  nofs << CSVENDL;
 
   PNodeVector &nv = nodes();
   for (size_t i = 0; i < nv.size(); i++)
   {
-    if (nwriter->writeCsv(nifs, nv[i]))
-      nifs << CSVENDL;
+    if (nwriter->writeCsv(nofs, nv[i]))
+      nofs << CSVENDL;
   }
 }
 
@@ -846,12 +846,12 @@ void Graph::WriteLinksCsv(const char *lPath, LinkWriter *writer)
   LinkWriter *lwriter = writer ? writer : newLinkWriter();
   auto_del<LinkWriter> del_lwriter(lwriter, false);
 
-  std::ofstream lifs(lPath, std::ios_base::out | std::ios_base::binary);
-  if (!lifs.good())
+  std::ofstream lofs(lPath, std::ios_base::out | std::ios_base::binary);
+  if (!lofs.good())
     throw Exception("Unable to open the links output file");
 
-  lwriter->writeCsvHeader(lifs);
-  lifs << CSVENDL;
+  lwriter->writeCsvHeader(lofs);
+  lofs << CSVENDL;
 
   SrcLinkVector srcLinks;
   getSrcLinks(srcLinks);
@@ -861,8 +861,8 @@ void Graph::WriteLinksCsv(const char *lPath, LinkWriter *writer)
     if (sl.link.d->m_directed ||
         sl.src->m_name < sl.link.n->m_name)
     {
-      if (lwriter->writeCsv(lifs, sl.link.d, sl.src, sl.link.n))
-        lifs << CSVENDL;
+      if (lwriter->writeCsv(lofs, sl.link.d, sl.src, sl.link.n))
+        lofs << CSVENDL;
     }
   }
 }
