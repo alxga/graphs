@@ -59,6 +59,10 @@ typedef std::vector<LinkData> LinkDataVector;
 typedef std::list<LinkData *> PLinkDataList;
 typedef std::vector<LinkData *> PLinkDataVector;
 
+typedef std::map<std::string, LinkData *> StrPLinkDataMap;
+typedef std::map<std::string, LinkData *>::iterator StrPLinkDataMapIt;
+typedef std::map<std::string, LinkData *>::reverse_iterator StrPLinkDataMapRIt;
+
 
 class Node;
 struct Link

@@ -377,6 +377,14 @@ static double divHalf(double a, double b, IFunc *func)
 }
 
 
+void Graph::getLinkDataMap(StrPLinkDataMap &ret) const
+{
+  ret.clear();
+  const PLinkDataVector &ldv = linkData();
+  for (int i = 0; i < (int)ldv.size(); i++)
+    ret[ldv[i]->m_name] = ldv[i];
+}
+
 void Graph::getSrcLinks(SrcLinkVector &ret) const
 {
   PNodeVector &nv = nodes();
@@ -786,7 +794,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   std::ifstream nifs(nPath, std::ios_base::in | std::ios_base::binary);
 
   if (!nifs.good())
-    throw Exception("Unable to open the nodes input file");
+    throw Exception("Unable to open the nodes input file: %s", nPath);
 
   std::getline(nifs, str);
   nCols.parse(str);
@@ -806,7 +814,7 @@ void Graph::ReadCsv(const char *nPath, const char *lPath)
   std::ifstream lifs(lPath, std::ios_base::in | std::ios_base::binary);
 
   if (!lifs.good())
-    throw Exception("Unable to open the links input file");
+    throw Exception("Unable to open the links input file: %s", lPath);
 
   std::getline(lifs, str);
   lCols.parse(str);

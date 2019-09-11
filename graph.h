@@ -86,6 +86,7 @@ public:
   inline PNodeVector &nodes() const { return *m_nodes; }
   inline PLinkDataVector &linkData() const { return *m_linkData; }
   inline StrPNodeMap &nodeMap() { return *m_nodeMap; }
+  void getLinkDataMap(StrPLinkDataMap &ret) const;
 
   Node **nodesByDegree();
 
