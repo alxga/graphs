@@ -5,6 +5,7 @@
   See LICENSE file in the project root for full license information.
 */
 
+#include <strings.h>
 #include <string>
 #include <vector>
 #include "Utils/utils.h"

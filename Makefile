@@ -8,10 +8,10 @@ HEADERS = alg.h bgraph.h blkmem.h bnode.h circgraph.h circnode.h \
           netfactory.h node.h parsers.h sfdistr.h stdafx.h writers.h
 
 SRC = alg.cpp bgraph.cpp circgraph.cpp circnodewriter.cpp cols.cpp graph.cpp \
-      link.cpp sfdistr.cpp writers.cpp
+      sfdistr.cpp writers.cpp
 
 OBJ = alg.o bgraph.o circgraph.o circnodewriter.o cols.o graph.o \
-      link.o sfdistr.o writers.o
+      sfdistr.o writers.o
 
 %.o: %.cpp
 	$(CC) -c $(CFLAGS) -o $@ $<
