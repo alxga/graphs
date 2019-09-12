@@ -5,7 +5,9 @@
   See LICENSE file in the project root for full license information.
 */
 
-#include <strings.h>
+#ifndef WINDOWS
+#  include <strings.h>
+#endif
 #include <string>
 #include <vector>
 #include "Utils/utils.h"
