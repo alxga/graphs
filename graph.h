@@ -81,11 +81,11 @@ public:
   }
 
   inline int nCount() const { return (int)m_nodes->size(); }
-  inline int ldCount() const { return (int)m_linkData->size(); }
-
   inline PNodeVector &nodes() const { return *m_nodes; }
-  inline PLinkDataVector &linkData() const { return *m_linkData; }
   inline StrPNodeMap &nodeMap() { return *m_nodeMap; }
+
+  inline int ldCount() const { return (int)m_linkData->size(); }
+  inline PLinkDataVector &linkData() const { return *m_linkData; }
   void getLinkDataMap(StrPLinkDataMap &ret) const;
 
   Node **nodesByDegree();
