@@ -41,12 +41,6 @@ public:
     init();
   }
 
-  const LinkData &operator= (const LinkData &v)
-  {
-    memcpy(this, &v, sizeof(LinkData));
-    return *this;
-  }
-
   virtual void reinit()
   {
     init();
