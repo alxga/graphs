@@ -1,5 +1,11 @@
 LIB =
-CFLAGS = -O2 -fpic -std=gnu++0x -I..
+CFLAGS = -fpic -std=gnu++0x -I..
+
+ifneq ($(VSCFG), LinuxRelease)
+  CFLAGS += -g
+else
+  CFLAGS += -O2
+endif
 
 CC = g++
 
@@ -18,7 +24,7 @@ OBJ = alg.o bgraph.o circgraph.o circnodewriter.o cols.o graph.o \
 
 libgraphs.so : $(OBJ)
 	$(CC) -shared -o $@ $(OBJ) $(LIB)
-	rm $(OBJ)
+#	rm $(OBJ)
 	cp $@ ../so
 
 clean:
